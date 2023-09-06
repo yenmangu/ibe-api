@@ -1,3 +1,32 @@
+# Credentials
+G_API
+*/G_API
+
+# Keys
+keys
+keys/
+**/*.pem
+
+# bash
+*.sh
+
+# Endpoints
+endpoints.md
+future.md
+
+# Specific Utils
+**/newHash.js
+**/genNew.js
+**/test.js
+
+# XML Responses
+xml_response
+**/xml_response
+**/*.xml
+
+# Data
+**/data/*
+
 # Logs
 logs
 *.log
