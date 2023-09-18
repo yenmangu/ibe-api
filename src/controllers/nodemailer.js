@@ -29,7 +29,7 @@ async function sendDetails(contact) {
 			console.log('no contact for nodeMail');
 		}
 
-		const transport = nodemail.createTransport(smtp);
+		const transport = nodemailer.createTransport(smtp);
 		const template = await readFileAsync(
 			path.join(__dirname, '..', 'email', 'templates', 'updated_email.html'),
 			'utf8'

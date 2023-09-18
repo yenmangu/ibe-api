@@ -1,8 +1,8 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const utilities = require('../util/utilities');
-const sheetsController = require('../controllers/googleControllers/sheetsController');
-const directorController = require('../controllers/directorController');
+const sheetsController = require('../controllers/google_controllers/sheets_controller');
+const directorController = require('../controllers/director_controller');
 
 dotenv.config();
 

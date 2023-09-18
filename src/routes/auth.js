@@ -8,10 +8,10 @@ const bcrypt = require('bcryptjs');
 const path = require('path');
 const checkAuth = require('../middleware/check-auth');
 const jwt = require('jsonwebtoken');
-const generateSlot = require('../controllers/slotCreation');
-const errorResponse = require('../controllers/errorResponse');
-const userAuth = require('../controllers/userAuth.controller');
-const directorController = require('../controllers/directorController');
+const generateSlot = require('../controllers/slot_creation');
+const errorResponse = require('../controllers/error_response');
+const userAuth = require('../controllers/user_auth_controller');
+const directorController = require('../controllers/director_controller');
 const mailController = require('../controllers/nodemailer');
 
 dotenv.config();
@@ -122,7 +122,7 @@ router.put('/update-email', async (req, res) => {
 		const mailOptions = await findContactBuildMailOptions(directorId);
 		const email = await mailController.sendDetails(mailOptions);
 		if (!email) {
-			console.log()
+			console.log();
 		}
 
 		return res

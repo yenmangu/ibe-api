@@ -73,13 +73,17 @@ app.use(cors(corsOptions));
 
 //Import Routes
 // const authRoute = require('./src/routes/auth');
+
+const webhook = require('./src/routes/webhook');
+
 const authRoute = require('./src/routes/auth');
 const eventRoute = require('./src/routes/event');
 const p2pRoute = require('./src/routes/p2p');
-const createTestUsers = require('./src/routes/testUsers');
-const dealFiles = require('./src/routes/dealFiles');
-const mailRoute = require('./src/routes/mailRoute');
-const newRegistrationRoute = require('./src/routes/newRegistration');
+const createTestUsers = require('./src/routes/test_users');
+const dealFiles = require('./src/routes/deal_files');
+const mailRoute = require('./src/routes/mail_route');
+const newRegistrationRoute = require('./src/routes/new_registration');
+
 //Initalise App
 
 function decodeBSON(req, res, next) {
@@ -135,6 +139,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/ibescore/api-check', (req, res) => {
 	res.status(200).json({ message: 'API working' });
 });
+
+app.use('/webhook', webhook);
 app.use('/ibescore/auth', authRoute);
 app.use('/ibescore/event', eventRoute);
 app.use('/ibescore/test', createTestUsers);
@@ -146,8 +152,8 @@ app.use('/ibescore/register', newRegistrationRoute);
 //Assign Angular Route
 
 // app.use('/', express.static(path.join(__dirname, 'dist')));
-app.get('*', function (req, res) {
-	res.redirect('/#redirectto=main');
-});
+// app.get('*', function (req, res) {
+// 	res.redirect('/#redirectto=main');
+// });
 
 module.exports = app;

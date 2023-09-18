@@ -48,14 +48,13 @@ const onListening = () => {
 };
 
 const port = normalizePort(process.env.PORT || '3000');
-if (process.env.DEV) {
-	console.log('BOOTING IN DEVELOPMENT MODE');
+if (process.env.NODE_ENV === 'dev') {
+	console.log('NODE_ENV=DEV');
 	console.log('PORT ' + port);
 	if (process.env.ALLOW_LOCAL_STORAGE) {
 		console.log('ALLOWING LOCAL STORAGE AUTH');
 	}
 }
-
 app.set('port', port);
 
 const server = http.createServer(app);

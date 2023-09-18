@@ -1,8 +1,8 @@
 const { google } = require('googleapis');
 const dotenv = require('dotenv');
 // const mapPropertyNamesToColumnNames = require('../../util/columnsMapping');
-const dataMapping = require('../../util/columnsMapping');
-const createAuthClient = require('./serviceAccountAuthController');
+const dataMapping = require('../../util/columns_mapping');
+const createAuthClient = require('./service_account_auth_controller');
 // const authorize = require('./googleAuthController');
 const SPREADSHEET_ID = '1TKIhZDkGbAvH6WESjyCXiEpBUM4BUUXXOvvej77PzrU';
 const tabName = 'Ibe Sign Ups';

@@ -1,6 +1,6 @@
 const google = require('googleapis');
 
-const authController = require('./googleAuthController');
+const authController = require('./google_auth_controller');
 const { createImportSpecifier } = require('typescript');
 
 async function listFiles(authClient) {

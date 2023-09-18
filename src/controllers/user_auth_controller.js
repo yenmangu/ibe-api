@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const fs = require('fs');
 const director = require('../models/director')
-const generateSlot = require('./slotCreation');
+const generateSlot = require('./slot_creation');
 const checkAuth = require('../middleware/check-auth');
 const path = require('path');
 

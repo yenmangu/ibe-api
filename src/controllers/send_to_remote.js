@@ -3,9 +3,9 @@ const dotenv = require('dotenv');
 const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path');
-const getRemoteResponse = require('./xmlResponse');
-const writeResponseToFile = require('./saveResponse');
-const errorResponse = require('./errorResponse');
+const getRemoteResponse = require('./xml_response');
+const writeResponseToFile = require('./save_response');
+const errorResponse = require('./error_response');
 
 dotenv.config();
 
@@ -138,7 +138,9 @@ const uploadHandConfig = async (req, res, next) => {
 	// return
 	console.log(req.file);
 	if (!req.files) {
-		return res.status(400).json({ message: 'No hand record file detected, exiting route.' });
+		return res
+			.status(400)
+			.json({ message: 'No hand record file detected, exiting route.' });
 	}
 	try {
 		// return
