@@ -47,7 +47,7 @@ const onListening = () => {
 	debug('Listening on ' + bind);
 };
 
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3030');
 if (process.env.NODE_ENV === 'dev') {
 	console.log('NODE_ENV=DEV');
 	console.log('PORT ' + port);

@@ -140,7 +140,7 @@ app.get('/ibescore/api-check', (req, res) => {
 	res.status(200).json({ message: 'API working' });
 });
 
-app.use('/webhook', webhook);
+app.use('/ibescore/webhook', webhook);
 app.use('/ibescore/auth', authRoute);
 app.use('/ibescore/event', eventRoute);
 app.use('/ibescore/test', createTestUsers);
