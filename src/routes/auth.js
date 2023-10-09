@@ -60,6 +60,7 @@ router.post('/test-password', async (req, res) => {
 //Login
 
 router.post('/login', userAuth.login);
+router.get('/check_session', userAuth.isAuthed);
 
 router.get('/logout', checkAuth, (req, res, next) => {
 	res.clearCookie('SESSIONID');

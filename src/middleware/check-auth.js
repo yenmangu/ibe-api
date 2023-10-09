@@ -17,8 +17,10 @@ const decryptedKey = crypto.createPublicKey({
 dotenv.config();
 //is sync working? yes
 module.exports = (req, res, next) => {
-
 	try {
+		if (req.path === '/check_session') {
+			return next();
+		}
 		if (process.env.ALLOW_LOCAL_STORAGE) {
 			if (!req.headers.authorization) {
 				token = req.cookies.SESSIONID;

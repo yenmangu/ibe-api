@@ -74,6 +74,8 @@ app.use(cors(corsOptions));
 //Import Routes
 // const authRoute = require('./src/routes/auth');
 
+const devRoute = require('./src/routes/dev/_dev');
+
 const webhook = require('./src/routes/webhook');
 
 const authRoute = require('./src/routes/auth');
@@ -83,7 +85,7 @@ const createTestUsers = require('./src/routes/test_users');
 const dealFiles = require('./src/routes/deal_files');
 const mailRoute = require('./src/routes/mail_route');
 const newRegistrationRoute = require('./src/routes/new_registration');
-
+const receivedDataRoute = require('./src/routes/remote_data')
 //Initalise App
 
 function decodeBSON(req, res, next) {
@@ -112,7 +114,7 @@ function logError(err, req, res, next) {
 
 app.use(logError);
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '20mb'}));
 app.post(decodeBSON);
 
 mongoose
@@ -140,6 +142,8 @@ app.get('/ibescore/api-check', (req, res) => {
 	res.status(200).json({ message: 'API working' });
 });
 
+app.use('/ibescore/dev', devRoute);
+
 app.use('/ibescore/webhook', webhook);
 app.use('/ibescore/auth', authRoute);
 app.use('/ibescore/event', eventRoute);
@@ -148,7 +152,7 @@ app.use('/ibescore/p2p', p2pRoute);
 app.use('/ibescore/deal_files', dealFiles);
 app.use('/ibescore/mail', mailRoute);
 app.use('/ibescore/register', newRegistrationRoute);
-
+app.use('/ibescore/database', receivedDataRoute)
 //Assign Angular Route
 
 // app.use('/', express.static(path.join(__dirname, 'dist')));
