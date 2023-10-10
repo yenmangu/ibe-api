@@ -62,20 +62,20 @@ router.get('/', async (req, res) => {
 });
 // res.status(200).json({ remoteResult, compressedData });
 
-// router.post('/', async (req, res) => {
-// 	try {
-// 		const data = req.body;
-// 		if (data) {
-// 			console.log('received-data: ', data);
-// 			const response = await processJSON(data);
-// 			console.log(response);
-// 			// console.log('data in api: ', data);
-// 			res.status(200).json({ message: 'Data Receieved by API' });
-// 		}
-// 	} catch (err) {
-// 		console.error('error posting to remote');
-// 		return res.status(500).json({ message: 'Internal Server Error', error: err });
-// 	}
-// });
+router.post('/', async (req, res) => {
+	try {
+		const data = req.body;
+		if (data) {
+			console.log('received-data: ', data);
+			const response = await processJSON(data);
+			console.log(response);
+			// console.log('data in api: ', data);
+			res.status(200).json({ message: 'Data Receieved by API' });
+		}
+	} catch (err) {
+		console.error('error posting to remote');
+		return res.status(500).json({ message: 'Internal Server Error', error: err });
+	}
+});
 
 module.exports = router;

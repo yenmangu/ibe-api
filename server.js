@@ -53,6 +53,7 @@ if (process.env.NODE_ENV === 'dev') {
 	console.log('PORT ' + port);
 	if (process.env.ALLOW_LOCAL_STORAGE) {
 		console.log('ALLOWING LOCAL STORAGE AUTH');
+		console.log('PORT ' + port);
 	}
 }
 app.set('port', port);
