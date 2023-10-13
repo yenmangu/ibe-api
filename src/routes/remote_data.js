@@ -68,6 +68,7 @@ router.post('/', async (req, res) => {
 		if (data) {
 			console.log('received-data: ', data);
 			const response = await processJSON(data);
+			
 			console.log(response);
 			// console.log('data in api: ', data);
 			res.status(200).json({ message: 'Data Receieved by API' });
