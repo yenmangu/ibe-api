@@ -86,15 +86,9 @@ async function createDirector(req, res, next) {
 		slot: tempSlot
 	};
 
-	// console.log('tempSlot: ', tempSlot);
-	// console.log('Full Name: ', fullName);
-	// console.log('Username: ', username);
-	// return;
 	console.log(password);
 
-	// const password = req.body.password;
 	const oldSlot = tempSlot ? tempSlot : newSlot.slot;
-	// const oldSlot = req.body.slot ? req.body.slot : newSlot.slot;
 	const hashedPassword = bcrypt.hashSync(password, salt);
 	let victorError = false;
 	try {
@@ -110,7 +104,7 @@ async function createDirector(req, res, next) {
 			throw error;
 		} else {
 			try {
-				await sendData(
+				const response = await sendData(
 					fullName,
 					req.body.email,
 					tel_phone,
@@ -119,13 +113,21 @@ async function createDirector(req, res, next) {
 					req.body.type,
 					hashedPassword
 				);
+
+				console.log('victor-response: ', response);
 			} catch (err) {
 				victorError = true;
+				console.log('vic error: ', err.message);
+				if (victorError && err.message === 'SLOT_EXISTS') {
+					const error = new Error('SLOT_EXISTS');
+					error.slot = oldSlot;
+					throw error;
+				} else {
+					return res.status(500).json({ message: 'VIC_ERROR', victorError });
+				}
 			}
 
-			if (victorError) {
-				return res.status(500).json({ message: 'VIC_ERROR', victorError });
-			} else {
+			if (!victorError) {
 				// Slot does not exist, proceed with saving the newDirector
 				const mailOptions = {
 					email: req.body.email,
@@ -243,19 +245,25 @@ async function sendData(
 		const response = await axios.post(process.env.VICTOR_SERVER, transformedData, {
 			headers: headers
 		});
-		console.log('createDirector :', response.data);
+		// console.log('createDirector :', response);
 
 		const lines = response.data.split();
 		result = lines[0].trim().toLowerCase();
+		// console.log('result: ', result, '     end result');
+		// console.log(result.length);
+		const split = result.split('\n');
+
 		if (result === 'success') {
 			console.log("Success from Victor's Server");
+			return result;
 		} else {
-			// console.log(result);
-			throw new Error('VICTOR_ERROR');
+			if (split[1] === 'slotalreadyexists')
+				// console.log(result);
+				throw new Error('SLOT_EXISTS');
 		}
 		// console.log(response);
-	} catch (error) {
-		console.log(error.message);
+	} catch (err) {
+		// console.log('error: ', err);
 		throw err;
 	}
 }
@@ -470,122 +478,6 @@ async function handlePassReq(req, res) {
 		res.status(500).json({ message: 'Internal Server Error', err });
 	}
 }
-
-// async function updatePassword(req, res, next) {
-// 	console.log(req.body);
-// 	console.log(req.query.SLOT);
-// 	const slot = req.query.SLOT;
-// 	const { directorId, currentPassword, password } = req.body;
-// 	const hashedNewPassword = bcrypt.hashSync(password, salt);
-// 	let victorError = false;
-// 	let errorType;
-// 	const data = {
-// 		slot: slot,
-// 		currentPassword: currentPassword,
-// 		password: hashedNewPassword
-// 	};
-
-// 	// attempt to update victor's data
-// 	try {
-// 		console.log(data);
-// 		// return;
-// 		// await sendUpdatedPass(slot, directorId, currentPassword, hashedNewPassword);
-// 		await sendUpdatedPass(data);
-// 	} catch (err) {
-// 		victorError = true;
-// 		console.error('Error sending to Victor', err);
-// 		throw err;
-// 	}
-// 	if (victorError) {
-// 		return res.status(500).json({ message: 'SEND_ERROR' });
-// 	} else {
-// 		let updatedDirector;
-// 		// upon successful sending, update our database
-// 		const updateDatabase = async () => {
-// 			try {
-// 				updatedDirector = await director.findByIdAndUpdate(
-// 					directorId, // Replace directorId with the actual ID of the director to update
-// 					{ password: hashedNewPassword },
-// 					{ new: true }
-// 				);
-// 				if (!updatedDirector) {
-// 					errorType = 'DIR_NOT_FOUND';
-// 					throw new Error(errorType);
-// 				}
-// 				// Password update successful
-// 				// Any other logic related to successful update can be added here
-// 				return updatedDirector; // Optionally, return the updatedDirector if needed
-// 			} catch (err) {
-// 				console.error('Failed to update database', err);
-// 				throw err; // Re-throw the error to be handled by the calling code
-// 			}
-// 		};
-// 		try {
-// 			await updateDatabase();
-// 			// upon total success
-// 			res.status(200).json({
-// 				message: 'Password updated successfully',
-// 				director: updatedDirector
-// 			});
-// 		} catch (err) {
-// 			// if (errorType === 'DIR_NOT_FOUND') {
-// 			// 	res.status(400).json({ message: 'Director not found' });
-// 			// } else if (errorType === '') {
-// 			// 	res.status(500).json({ message: 'Internal Server Error' });
-// 			// }
-
-// 			console.error(err)
-// 			return res.status(500)
-// 		}
-// 	}
-// }
-
-// async function sendUpdatedPass(data) {
-// 	console.log(data);
-// 	// return
-// 	// async function sendUpdatedPass(slot, currentPass, hashedNewPassword) {
-// 	try {
-// 		const url = process.env.UPDATE_PASS;
-// 		// const string = `${slot}\nDIRPASS\n${currentPass}\n${hashedNewPassword}`;
-// 		const string = `${data.slot}\nDIRPASS\n${data.currentPass}\n${data.hashedNewPassword}`;
-// 		const headers = { 'Content-Type': 'text/plain' };
-
-// 		const response = await axios.post(url, string, {
-// 			headers: headers
-// 		});
-
-// 		if (!response) {
-// 			return {
-// 				message: "Error sending to victor's server",
-// 				errorCode: 'VICTOR_ERROR',
-// 				result: 'Unknown error occurred'
-// 			};
-// 		}
-
-// 		console.log(response.data);
-// 		if (response) {
-// 			const lines = response.data.split();
-// 			const result = lines[0].trim().toLowerCase();
-// 			if (result === 'success') {
-// 				console.log("Success updating password on Victor's server");
-// 			} else {
-// 				return {
-// 					message: 'Sent to victor fine, but did not update',
-// 					errorCode: 'NOT_UPDATE',
-// 					result: response?.data
-// 				};
-// 			}
-// 		}
-// 	} catch (err) {
-// 		console.error('Error Sending UpdatedPassword', err);
-// 		console.error('stack trace', err.stack);
-// 		return {
-// 			message: "Error sending password to Victor's server",
-// 			errorCode: 'SEND_ERROR',
-// 			result: 'Unknown error occurred'
-// 		};
-// 	}
-// }
 
 module.exports = {
 	createDirector,
