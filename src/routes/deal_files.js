@@ -1,7 +1,7 @@
 const express = require('express');
 require('dotenv').config();
 
-const handleFile = require('../controllers/file_controller');
+const handleFile = require('../controllers/data/file_controller');
 const sendToRemote = require('../controllers/send_to_remote');
 
 const router = express.Router();

@@ -10,6 +10,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
+const timeLogger = require('./src/middleware/timeLogger');
+const errorHandling = require('./src/middleware/error_handling');
 const app = express();
 // //Init DotENV
 dotenv.config({
@@ -85,7 +87,11 @@ const createTestUsers = require('./src/routes/test_users');
 const dealFiles = require('./src/routes/deal_files');
 const mailRoute = require('./src/routes/mail_route');
 const newRegistrationRoute = require('./src/routes/new_registration');
-const receivedDataRoute = require('./src/routes/remote_data')
+const receivedDataRoute = require('./src/routes/remote_data');
+const curentGameRoute = require('./src/routes/current-game/current_game');
+const playerDbRoute = require('./src/routes/player-database/player_database');
+const historicGamesRoute = require('./src/routes/historic-games/historic-games');
+const publicLineupRoute = require('./src/routes/public_lineup');
 //Initalise App
 
 function decodeBSON(req, res, next) {
@@ -112,9 +118,10 @@ function logError(err, req, res, next) {
 	next(err);
 }
 
+app.use(timeLogger);
 app.use(logError);
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json({limit: '20mb'}));
+app.use(bodyParser.json({ limit: '20mb' }));
 app.post(decodeBSON);
 
 mongoose
@@ -152,7 +159,11 @@ app.use('/ibescore/p2p', p2pRoute);
 app.use('/ibescore/deal_files', dealFiles);
 app.use('/ibescore/mail', mailRoute);
 app.use('/ibescore/register', newRegistrationRoute);
-app.use('/ibescore/database', receivedDataRoute)
+app.use('/ibescore/database', receivedDataRoute);
+app.use('/ibescore/current_game', curentGameRoute);
+app.use('/ibescore/player_database', playerDbRoute);
+app.use('/ibescore/historic_games', historicGamesRoute);
+app.use('/ibescore/lineup', publicLineupRoute);
 //Assign Angular Route
 
 // app.use('/', express.static(path.join(__dirname, 'dist')));
@@ -160,4 +171,5 @@ app.use('/ibescore/database', receivedDataRoute)
 // 	res.redirect('/#redirectto=main');
 // });
 
+app.use(errorHandling);
 module.exports = app;

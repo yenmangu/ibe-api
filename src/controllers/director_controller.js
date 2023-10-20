@@ -6,8 +6,8 @@ const director = require('../models/director'); // Assuming you have a model nam
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const generateSlot = require('./slot_creation');
-const genPass = require('./generate_password');
+const generateSlot = require('./user/slot_creation');
+const genPass = require('./user/generate_password');
 const sendMail = require('./nodemailer');
 const { error } = require('console');
 const sheetController = require('./google_controllers/sheets_controller');
@@ -34,6 +34,7 @@ async function checkSlotExists(slot) {
 	try {
 		console.log('at checkSlotExists() slot: ', slot);
 		// Perform a database query to check if the slot exists
+		
 		const existingDirector = await director.findOne({
 			slot: { $regex: new RegExp(`^${slot}$`, 'i') }
 		});
@@ -250,7 +251,7 @@ async function sendData(
 		const lines = response.data.split();
 		result = lines[0].trim().toLowerCase();
 		// console.log('result: ', result, '     end result');
-		// console.log(result.length);
+		console.log(response.data);
 		const split = result.split('\n');
 
 		if (result === 'success') {

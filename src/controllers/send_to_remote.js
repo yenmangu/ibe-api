@@ -3,7 +3,7 @@ const dotenv = require('dotenv');
 const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path');
-const getRemoteResponse = require('./xml_response');
+const getRemoteResponse = require('./data/xml_response');
 const writeResponseToFile = require('./save_response');
 const errorResponse = require('./error_response');
 

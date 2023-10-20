@@ -8,10 +8,6 @@ const {
 } = require('../controllers/xml_controllers/xml_controller');
 const xml_service = require('../services/xml_service');
 
-router.use(function timeLog(re, res, next) {
-	console.log('Time: ', Date());
-	next();
-});
 
 router.get('/', async (req, res) => {
 	try {
@@ -68,7 +64,7 @@ router.post('/', async (req, res) => {
 		if (data) {
 			console.log('received-data: ', data);
 			const response = await processJSON(data);
-			
+
 			console.log(response);
 			// console.log('data in api: ', data);
 			res.status(200).json({ message: 'Data Receieved by API' });

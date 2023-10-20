@@ -2,6 +2,8 @@ const path = require('path');
 const { readFileAsync, writeFileAsync } = require('../../services/file_service');
 const xmlService = require('../../services/xml_service');
 const compressJSON = require('../../services/compression');
+const player_cardinal_extraction = require('../../services/data_transform');
+const sendToRemote = require('../../services/send_to_remote');
 
 let counter = 1;
 
@@ -87,8 +89,36 @@ async function processXML(xmlData) {
 	}
 }
 
+async function processCurrentGame(
+	dir_key,
+	game_code,
+	formData
+
+) {
+	try {
+		console.log('xml controller invoked');
+
+		const currentMatchArrays =
+			player_cardinal_extraction.extractCardinalPlayers(formData);
+		console.log('data arrays:  ', currentMatchArrays);
+
+		const currentGameXML = await xmlService.createCurrentGameXML(
+			dir_key,
+			game_code,
+			currentMatchArrays
+		);
+
+		console.log('Current Game XML: \n', currentGameXML);
+		// return
+		return currentGameXML;
+	} catch (error) {
+		throw error;
+	}
+}
+
 module.exports = {
 	readXmlFileControllerDev,
 	processJSON,
-	processXML
+	processXML,
+	processCurrentGame
 };

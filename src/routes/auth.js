@@ -8,9 +8,9 @@ const bcrypt = require('bcryptjs');
 const path = require('path');
 const checkAuth = require('../middleware/check-auth');
 const jwt = require('jsonwebtoken');
-const generateSlot = require('../controllers/slot_creation');
+const generateSlot = require('../controllers/user/slot_creation');
 const errorResponse = require('../controllers/error_response');
-const userAuth = require('../controllers/user_auth_controller');
+const userAuth = require('../controllers/auth/user_auth_controller');
 const directorController = require('../controllers/director_controller');
 const mailController = require('../controllers/nodemailer');
 

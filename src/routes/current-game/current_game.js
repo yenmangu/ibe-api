@@ -1,0 +1,20 @@
+const express = require('express');
+const path = require('path');
+const tableConfig = require('../../middleware/table_config');
+const base_settings = require('../../middleware/base_settings');
+
+const router = express.Router();
+console.log(process.env.PORT);
+
+router.get('/', (req, res) => {
+	const port = process.env.PORT;
+	res.send({ 'test: ': port });
+});
+
+router.post('/table_config', tableConfig.pocessTableConfig);
+
+router.post('/base_settings', base_settings.baseSettings);
+
+// router.post('/base_settings');
+
+module.exports = router;

@@ -38,24 +38,26 @@ function findErrorTag(xmlData) {
 }
 
 async function determineSuccess(xmlData) {
-  try {
-    // Parse the error information
-    const { failure, reason } = parseError(xmlData);
+	console.log('xml response: ', xmlData);
 
-    // Check if it's a success response
-    const success = successCheck(xmlData);
+	try {
+		// Parse the error information
+		const { failure, reason } = parseError(xmlData);
 
-    // If it's a failure, return the reason
-    if (failure) {
-      return { success: false, reason };
-    }
+		// Check if it's a success response
+		const success = successCheck(xmlData);
 
-    // If it's a success, return success
-    return { success: true };
-  } catch (error) {
-    console.error('Error determining success:', error);
-    throw new Error('Error determining success');
-  }
+		// If it's a failure, return the reason
+		if (failure) {
+			return { success: false, reason };
+		}
+
+		// If it's a success, return success
+		return { success: true };
+	} catch (error) {
+		console.error('Error determining success:', error);
+		throw new Error('Error determining success');
+	}
 }
 
 module.exports = { parseError, successCheck, findErrorTag, determineSuccess };

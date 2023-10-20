@@ -2,13 +2,13 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const fs = require('fs');
-const director = require('../models/director');
-const generateSlot = require('./slot_creation');
-const checkAuth = require('../middleware/check-auth');
+const director = require('../../models/director');
+const generateSlot = require('../user/slot_creation');
+const checkAuth = require('../../middleware/check-auth');
 const path = require('path');
-const { getCurrentData } = require('../services/get_current');
-const xml_service = require('../services/xml_service');
-const xml_controller = require('../controllers/xml_controllers/xml_controller');
+const { getCurrentData } = require('../../services/get_current');
+const xml_service = require('../../services/xml_service');
+const xml_controller = require('../xml_controllers/xml_controller');
 const saltChars =
 	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$%^&*()-_+=~';
 
@@ -18,10 +18,10 @@ const salt = bcrypt.genSaltSync(10, { charset: saltChars });
 const keyPass = process.env.KEY_PASS;
 
 const RSA_PRIVATE_KEY = fs.readFileSync(
-	path.join(__dirname, '../../keys/private_key.pem')
+	path.join(__dirname, '../../../keys/private_key.pem')
 );
 const RSA_PUBLIC_KEY = fs.readFileSync(
-	path.join(__dirname, '../../keys/public_key.pem')
+	path.join(__dirname, '../../../keys/public_key.pem')
 );
 // console.log(RSA_PRIVATE_KEY);
 
