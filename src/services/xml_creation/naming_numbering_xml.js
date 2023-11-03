@@ -7,7 +7,7 @@ async function writeNamingNumberingXML(data) {
 			version: '1.0',
 			encoding: 'ISO-8859-1'
 		});
-		console.log('data in naming numbering', data);
+		// console.log('data in naming numbering', data);
 
 		root.dec({ version: '1.0', encoding: 'ISO-8859-1', headless: true });
 		root.att('svs', `-v-10126j-v-${data.game_code}`).att('pass', `${data.dir_key}`);

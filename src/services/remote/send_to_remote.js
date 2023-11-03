@@ -31,12 +31,12 @@ async function uploadCurrentSettings(data) {
 			serverError.status = 500;
 			throw serverError;
 		}
-		
+
 		const headers = { 'Content-Type': 'text/plain' };
 		const response = await axios.post(process.env.SETTINGS, data, {
 			headers: headers
 		});
-		// console.log('Remote response: ', response);
+		console.log('Remote response: ', response.data);
 		return response;
 	} catch (error) {
 		throw error;

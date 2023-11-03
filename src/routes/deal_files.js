@@ -10,7 +10,7 @@ router.post('/bbo', handleFile.multerMiddleware, sendToRemote.uploadBBO);
 
 router.post('/usebio', handleFile.multerMiddleware, sendToRemote.uploadUSEBIO);
 
-router.post('/hands', handleFile.multerMiddleware, sendToRemote.uploadHandConfig)
+router.post('/hands', handleFile.multerMiddleware, sendToRemote.uploadHandConfig);
 
 // router.post('/', checkAuth, async (req, res, next) => {
 // 	try {

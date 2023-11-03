@@ -20,6 +20,7 @@ async function getCurrentData(authData) {
 			data: data
 		};
 		const response = await axios.request(config);
+		// console.log(JSON.stringify(response.data,null,2))
 		return response;
 	} catch (err) {
 		throw err;

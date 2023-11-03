@@ -1,17 +1,19 @@
-const sendToRemote = require('../services/send_to_remote');
-const successOrFailure = require('../services/remote_response');
-const setupSecurity = require('../services/setup_security');
-const scoringXML = require('../services/scoring_xml');
-const appInterfaceXML = require('../services/app_interface_xml');
-const namingNumberingXML = require('../services/naming_numbering_xml');
+const sendToRemote = require('../services/remote/send_to_remote');
+const successOrFailure = require('../services/remote/remote_response');
+const setupSecurity = require('../services/xml_creation/setup_security');
+const scoringXML = require('../services/xml_creation/scoring_xml');
+const appInterfaceXML = require('../services/xml_creation/app_interface_xml');
+const namingNumberingXML = require('../services/xml_creation/naming_numbering_xml');
 
-
-async function processSettings (bodyData){
+async function processSettings(bodyData) {
 	try {
-		let xml = undefined
+		let xml = undefined;
+		const {
+			data: { formName }
+		} = bodyData;
 		if (bodyData.data.formName === 'setupForm') {
 			// FOR SETUP ONLY
-			console.log('setupForm');
+			// console.log('setupForm');
 			xml = await setupSecurity.generateXMLSnippet(bodyData);
 		} else {
 			// FOR NOT SETUP
@@ -36,13 +38,14 @@ async function processSettings (bodyData){
 			throw serverError;
 		}
 
-		const xmlString = xml.toString()
-		const response = await uploadSettings(xmlString)
+		const xmlString = xml.toString();
+		console.log('\n--------------- xml: -----------\n', xmlString);
 
-
-
+		const response = await uploadSettings(xmlString);
+		// console.log('returned response ************: ', response)
+		return response;
 	} catch (error) {
-		throw error
+		throw error;
 	}
 }
 
@@ -50,23 +53,25 @@ async function uploadSettings(data) {
 	try {
 		if (!data) {
 		}
-		console.log('data in game_settings: ', data);
+		// console.log('data in game_settings: ', data);
 
 		const serverResponse = await sendToRemote.uploadCurrentSettings(data);
+		console.log(
+			"response from victor's server: ",
+			JSON.stringify(serverResponse.data, null, 2)
+		);
+
 		const parsedString = await successOrFailure.parseResponseText(
 			serverResponse.data
 		);
 		console.log('parsed string: ', parsedString);
-		const tag = 'setwresponse'
+		const tag = 'setwresponse';
 
 		const remoteResponse = successOrFailure.getResponse(parsedString, tag);
 		if (remoteResponse) {
-
-
+			// console.log('remote response----------: ', remoteResponse);
 
 			return remoteResponse;
-
-
 		} else {
 			const serverError = new Error('No remote response');
 			serverError.status = 500;
@@ -77,4 +82,4 @@ async function uploadSettings(data) {
 	}
 }
 
-module.exports = { processSettings,uploadSettings };
+module.exports = { processSettings, uploadSettings };

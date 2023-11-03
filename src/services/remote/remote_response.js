@@ -1,5 +1,35 @@
 const { parseString } = require('xml2js');
 
+// Used in the send_to_remote send_files
+
+async function getRemoteResponse(xmlResponse) {
+	return new Promise((resolve, reject) => {
+		// const parseString = xml2js.Parser()
+		parseString(xmlResponse, (err, result) => {
+			if (err) {
+				reject(err);
+			} else {
+				const rootTag = Object.keys(result)[0];
+				const sfAttribute = result[rootTag]?.$?.sf;
+				resolve(sfAttribute);
+			}
+		});
+	});
+}
+
+function mapRemoteResponse(input) {
+	switch (input) {
+		case 's':
+			return 'SUCCESS';
+			break;
+		case 'f':
+			return 'FAIL';
+			break;
+		default:
+			return 'ERROR';
+	}
+}
+
 function parseError(errorString) {
 	const lines = errorString.split('\n');
 	const resultLine = lines[0];
@@ -106,6 +136,8 @@ function getResponse(parsedString, tag) {
 }
 
 module.exports = {
+	getRemoteResponse,
+	mapRemoteResponse,
 	parseError,
 	succesCheck,
 	findErrorTag,

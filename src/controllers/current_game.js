@@ -1,5 +1,5 @@
-const sendToRemote = require('../services/send_to_remote');
-const succesOrFailure = require('../services/remote_response.js');
+const sendToRemote = require('../services/remote/send_to_remote');
+const succesOrFailure = require('../services/remote/remote_response.js');
 
 async function remoteCommunication(xmlData) {
 	try {

@@ -3,7 +3,9 @@ const xmlbuilder = require('xmlbuilder');
 async function createScoringXML(data) {
 	try {
 		const formData = data.data;
-		console.log(JSON.stringify(formData, null, 2));
+
+		console.log(JSON.stringify(formData.formData.tables, null, 2));
+
 		const root = xmlbuilder.create('setwrequest', {
 			version: '1.0',
 			encoding: 'ISO-8859-1',
@@ -18,6 +20,9 @@ async function createScoringXML(data) {
 
 		const pet = scosets.ele('pet', {
 			val: getPetValue(formData.formData.scoringDataArray)
+		});
+		const pnt = scosets.ele('pnt', {
+			val: getPntValue(formData)
 		});
 
 		const scms = scosets.ele('scms');
@@ -42,6 +47,10 @@ async function createScoringXML(data) {
 		throw error;
 	}
 }
+function getPntValue(formData) {
+	return formData.formData.tables;
+}
+
 function getPetValue(scoringDataArray) {
 	const selected = scoringDataArray.findIndex(
 		data => data.defaultSelected === true
@@ -55,33 +64,6 @@ function getPetValue(scoringDataArray) {
 function getScoringMethodValue(scoringMethods) {
 	return scoringMethods;
 }
-
-// function getScoringMethodValue(scoringMethods) {
-// 	if (scoringMethods.includes('mp')) {
-// 		return 'mp';
-// 	} else if (scoringMethods.includes('ximp')) {
-// 		return 'ximp';
-// 	} else if (scoringMethods.includes('ag')) {
-// 		return 'ag';
-// 	} else if (scoringMethods.includes('bimp')) {
-// 		return 'bimp';
-// 	} else if (scoringMethods.includes('imp')) {
-// 		return 'imp';
-// 	} else if (scoringMethods.includes('vpimp')) {
-// 		return 'vpimp';
-// 	} else if (scoringMethods.includes('mzp')) {
-// 		return 'mzp';
-// 	} else if (scoringMethods.includes('ozt')) {
-// 		return 'ozt';
-// 	} else if (scoringMethods.includes('pch')) {
-// 		return 'pch';
-// 	} else if (scoringMethods.includes('tol')) {
-// 		return 'tol';
-// 	} else if (scoringMethods.includes('ati')) {
-// 		return 'ati';
-// 	}
-// 	return '';
-// }
 
 function getScoringDurationValue(preferredDuration) {
 	return preferredDuration;

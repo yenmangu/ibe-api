@@ -37,12 +37,12 @@ async function sendDetails(contact) {
 		let mailOptions = {
 			from: smtp.auth.user,
 			to: contact.email,
-			bcc: proceess.env.IBE_ADMIN,
+			bcc: process.env.IBE_ADMIN,
 			subject: `Email Updated for game code ${contact.gameCode}`,
 			html: template
-				.replace('[name]', contact.name)
-				.replace('[slot]', cotact.gameCode)
-				.replace('[email]', contact.email)
+				.replace('{{name}}', contact.name)
+				.replace('{{slot}}', contact.gameCode)
+				.replace('{{email}}', contact.email)
 		};
 		const info = await transport.sendMail(mailOptions);
 		return { messageId: info.messageId };

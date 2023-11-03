@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const tableConfig = require('../../middleware/table_config');
 const base_settings = require('../../middleware/base_settings');
+const dealFile = require('../../middleware/current_deal_file');
 
 const router = express.Router();
 console.log(process.env.PORT);
@@ -14,6 +15,8 @@ router.get('/', (req, res) => {
 router.post('/table_config', tableConfig.pocessTableConfig);
 
 router.post('/base_settings', base_settings.baseSettings);
+
+router.get('/deal_file', dealFile.processCurrentDealFile);
 
 // router.post('/base_settings');
 

@@ -128,7 +128,7 @@ router.put('/update-email', async (req, res) => {
 
 		return res
 			.status(200)
-			.json({ message: 'Email updated Successfully', updatedDirector });
+			.json({ message: 'Email updated Successfully', updatedDirector, success: true });
 	} catch (err) {
 		console.error('Error Updating Email', err);
 		return res.status(500).json({ message: 'Internal Server Error', Error: err });

@@ -3,7 +3,7 @@ const { readFileAsync, writeFileAsync } = require('../../services/file_service')
 const xmlService = require('../../services/xml_service');
 const compressJSON = require('../../services/compression');
 const player_cardinal_extraction = require('../../services/data_transform');
-const sendToRemote = require('../../services/send_to_remote');
+const sendToRemote = require('../../services/remote/send_to_remote');
 
 let counter = 1;
 

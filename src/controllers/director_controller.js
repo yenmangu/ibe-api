@@ -34,7 +34,7 @@ async function checkSlotExists(slot) {
 	try {
 		console.log('at checkSlotExists() slot: ', slot);
 		// Perform a database query to check if the slot exists
-		
+
 		const existingDirector = await director.findOne({
 			slot: { $regex: new RegExp(`^${slot}$`, 'i') }
 		});
@@ -316,7 +316,8 @@ async function updatePassword(req, res, next) {
 				// Upon total success
 				res.status(200).json({
 					message: 'Password updated successfully',
-					director: updatedDirector
+					director: updatedDirector,
+					success: true
 				});
 			} catch (err) {
 				console.error('Error updating password', err);
@@ -429,6 +430,7 @@ async function updateDatabase(slot, email, hashedNewPassword) {
 
 async function handlePassReq(req, res) {
 	try {
+		
 		const slot = req.query.SLOT;
 		const { email } = req.body;
 		const password = genPass();
@@ -462,7 +464,7 @@ async function handlePassReq(req, res) {
 		if (result.errorCode) {
 			return res
 				.status(500)
-				.json({ message: result.message, err: result.errorCode });
+				.json({ message: result.message, err: result.errorCode , success: false});
 		}
 		const updatedDir = await updateDatabase(slot, email, hashedNewPassword);
 
@@ -472,7 +474,8 @@ async function handlePassReq(req, res) {
 		// Upon total success
 		res.status(200).json({
 			message: 'Password updated successfully',
-			director: updatedDirector
+			director: updatedDirector,
+			success: true
 		});
 	} catch (err) {
 		console.error('Error generating new password', err);
