@@ -1,7 +1,7 @@
 const xml2js = require('xml2js');
 const xmlescape = require('xml-escape');
 const xmlbuilder = require('xmlbuilder');
-
+const { create } = require('xmlbuilder2');
 async function parseSfAttribute(xmlResponse) {
 	try {
 		const parser = new xml2js.Parser({ explicitArray: false, mergeAttrs: true });
@@ -33,7 +33,16 @@ async function parseSfAttribute(xmlResponse) {
 // const sfValue = await parseSfAttribute(xmlResponse);
 // console.log(`Value of 'sf' attribute: ${sfValue}`);
 
+function sanitiseXml(xml) {
+	const xmlString = xml.trim();
+	if (!xmlString.startsWith('<?xml')) {
+		newXml = `<root>${xmlString}</root>`;
+	}
+	return xmlString;
+}
+
 async function getMovementsData(xmlFile) {
+	xmlFile = sanitiseXml(xmlFile);
 	return new Promise((resolve, reject) => {
 		xml2js.parseString(xmlFile, (err, result) => {
 			if (err) {
@@ -44,10 +53,34 @@ async function getMovementsData(xmlFile) {
 		});
 	});
 }
+
+async function convertResponse(xmlData) {
+	try {
+		// console.log('string xml',xmlData.toString())
+		const result = await getMovementsData(xmlData.trim());
+		const firstProperty = Object.keys(result)[0];
+		const jsonData = {};
+		for (const key in firstProperty) {
+			if (firstProperty.hasOwnProperty(key)) {
+				const value = firstProperty[key][0];
+				jsonData[key] = value;
+			}
+		}
+		return jsonData;
+	} catch (error) {
+		throw error;
+	}
+}
+
 async function convertXMLtoJSON(xmlData) {
 	try {
 		const result = await getMovementsData(xmlData);
 		const siteAuthResponse = result.siteauthresponse;
+		// console.log(
+		// 	'\n------------------- xmlSettings: \n',
+		// 	JSON.stringify(siteAuthResponse.xmlsettings, null, 2)
+		// );
+		// console.log('\n------------------- SiteAuthResponse: \n', siteAuthResponse);
 
 		// Convert each tag inside <siteauthresponse> to key-value pairs
 		const jsonData = {};
@@ -204,10 +237,67 @@ function processArrays(array) {
 	return array.join('\n');
 }
 
+async function writePlayerDb(data) {
+	try {
+		if (!data) {
+			throw new Error('No data to process');
+		}
+		const { value, gameCode, dirKey } = data;
+
+		const {
+			$: { type, adddate },
+			name: [name],
+			lastplay: [
+				{
+					$: { date: lastplayDate }
+				}
+			],
+			pp: [
+				{
+					$: { n: ppValues }
+				}
+			],
+			email
+		} = value;
+
+		console.log(
+			'destructured: ',
+			type,
+			adddate,
+			name,
+			lastplayDate,
+			ppValues,
+			email
+		);
+
+		const xmlObject = {
+			pdwrequest: {
+				'@svs': `-v-10126j-v-${gameCode}`,
+				'@pass': `${dirKey}`,
+				'@remrev': '252'
+			}
+		};
+		xmlObject.pdwrequest.pdwscript = {
+			'@itemtype': `${type}`,
+			'@adddate': `${adddate}`,
+			$: `A ${adddate} ${name}`
+		};
+		const xml = create(xmlObject);
+		const final = xml.end({ prettyPrint: true });
+		console.log('xml in process player data: ', final);
+
+		console.log('xml string: ', xml.toString());
+	} catch (error) {
+		throw error;
+	}
+}
+
 module.exports = {
 	parseSfAttribute,
 	getMovementsData,
 	convertXMLtoJSON,
 	convertJSONtoXML,
-	createCurrentGameXML
+	createCurrentGameXML,
+	writePlayerDb,
+	convertResponse
 };

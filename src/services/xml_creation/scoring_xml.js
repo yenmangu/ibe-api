@@ -4,7 +4,7 @@ async function createScoringXML(data) {
 	try {
 		const formData = data.data;
 
-		console.log(JSON.stringify(formData.formData.tables, null, 2));
+		console.log(JSON.stringify(formData.formData, null, 2));
 
 		const root = xmlbuilder.create('setwrequest', {
 			version: '1.0',
@@ -21,6 +21,8 @@ async function createScoringXML(data) {
 		const pet = scosets.ele('pet', {
 			val: getPetValue(formData.formData.scoringDataArray)
 		});
+		console.log('pet value: ', getPetValue(formData.formData.scoringDataArray));
+
 		const pnt = scosets.ele('pnt', {
 			val: getPntValue(formData)
 		});
@@ -28,7 +30,7 @@ async function createScoringXML(data) {
 		const scms = scosets.ele('scms');
 		for (let i = 0; i < formData.formData.scoringDataArray.length; i++) {
 			const scm = scms.ele('scm', {
-				for: boardsScoringData[i].eventType.charAt(0).toLowerCase(),
+				for: boardsScoringData[i].petVal.toLowerCase(),
 				type: getScoringMethodValue(
 					formData.formData.scoringDataArray[i].scoringMethods
 				),
@@ -41,6 +43,8 @@ async function createScoringXML(data) {
 		const neu = scosets.ele('neu', {
 			val: getNeubergValue(formData.formData.neuberg)
 		});
+
+		console.log('xml element for scosets: ', root.toString());
 
 		return root.toString({ pretty: true });
 	} catch (error) {
@@ -56,7 +60,7 @@ function getPetValue(scoringDataArray) {
 		data => data.defaultSelected === true
 	);
 	if (selected !== -1) {
-		return boardsScoringData[selected].eventType.charAt(0).toLowerCase();
+		return boardsScoringData[selected].petVal;
 	}
 	return '';
 }
@@ -131,48 +135,56 @@ const swissDuration = [
 const boardsScoringData = [
 	{
 		eventType: 'Pairs',
+		petVal: 'p',
 		defaultSelected: false,
 		preferredDuration: normalDuration,
 		scoringMethods: [mp, ximp, ag, bimp]
 	},
 	{
 		eventType: 'Teams of four',
+		petVal: 't',
 		defaultSelected: false,
 		preferredDuration: normalDuration,
 		scoringMethods: [imp, vpimp, ag, mzp, ozt, pch]
 	},
 	{
 		eventType: 'Teams of 8',
+		petVal: '8',
 		defaultSelected: false,
 		preferredDuration: normalDuration,
 		scoringMethods: [imp, ag, mzp, ozt, tol, ati]
 	},
 	{
 		eventType: 'Teams of 12',
+		petVal: '12',
 		defaultSelected: false,
 		preferredDuration: normalDuration,
 		scoringMethods: [imp, ag, mzp, ozt, tol, ati]
 	},
 	{
 		eventType: 'Teams of 16',
+		petVal: '16',
 		defaultSelected: false,
 		preferredDuration: normalDuration,
 		scoringMethods: [imp, ag, mzp, ozt, tol, ati]
 	},
 	{
 		eventType: 'Individual',
+		petVal: 'i',
 		defaultSelected: false,
 		preferredDuration: normalDuration,
 		scoringMethods: [ximp, ag, bimp]
 	},
 	{
 		eventType: 'Swiss Pairs',
+		petVal: 'sp',
 		defaultSelected: false,
 		preferredDuration: swissDuration,
 		scoringMethods: [mp, vpmp, ximp, ag, bimp]
 	},
 	{
 		eventType: 'Swiss Teams',
+		petVal: 'st',
 		defaultSelected: false,
 		preferredDuration: swissDuration,
 		scoringMethods: [imp, vpimp, ag, ozt, mzp, pch]

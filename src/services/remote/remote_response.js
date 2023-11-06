@@ -10,8 +10,32 @@ async function getRemoteResponse(xmlResponse) {
 				reject(err);
 			} else {
 				const rootTag = Object.keys(result)[0];
+
 				const sfAttribute = result[rootTag]?.$?.sf;
 				resolve(sfAttribute);
+			}
+		});
+	});
+}
+async function getResponseAndError(xmlResponse) {
+	return new Promise((resolve, reject) => {
+		// const parseString = xml2js.Parser()
+		parseString(xmlResponse, (err, result) => {
+			if (err) {
+				reject(err);
+			} else {
+				const resolution = {};
+				const rootTag = Object.keys(result)[0];
+				const sfAttribute = result[rootTag]?.$?.sf;
+
+				resolution.sfAttribute = sfAttribute;
+
+				const errAttribute = result[rootTag]?.$?.err;
+				if (errAttribute) {
+					resolution.errAttribute = errAttribute;
+				}
+
+				resolve(resolution);
 			}
 		});
 	});
@@ -143,5 +167,6 @@ module.exports = {
 	findErrorTag,
 	determineSuccess,
 	parseResponseText,
-	getResponse
+	getResponse,
+	getResponseAndError
 };

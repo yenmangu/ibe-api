@@ -30,35 +30,3 @@ async function baseSettings(req, res, next) {
 
 module.exports = { baseSettings };
 
-// if (bodyData.data.formName === 'setupForm') {
-// 	// FOR SETUP ONLY
-// 	console.log('setupForm');
-// 	xml = await setupSecurity.generateXMLSnippet(bodyData);
-// } else {
-// 	// FOR NOT SETUP
-// 	console.log(formName);
-// 	if (formName === 'boardsScoring') {
-// 		console.log('writing scoring xml');
-// 		xml = await scoringXML.createScoringXML(bodyData);
-// 	}
-// 	if (formName === 'appInterface') {
-// 		console.log('writing app interface xml');
-// 		xml = await appInterfaceXML.writeAppInterfaceXML(bodyData);
-// 	}
-// 	if (formName === 'namingNumbering') {
-// 		console.log('writing naming numbering xml');
-// 		xml = await namingNumberingXML.writeNamingNumberingXML(bodyData);
-// 	}
-// }
-// if (!xml) {
-// 	const serverError = new Error();
-// 	serverError.message = 'Internal Server Errror. No XML from write functions';
-// 	serverError.status = 500;
-// 	throw serverError;
-// }
-
-// const xmlString = xml.toString()
-
-// console.log('string xml: ', xml.toString());
-
-// const response = await settingsController.uploadSettings(xmlString);

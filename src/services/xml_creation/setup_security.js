@@ -14,7 +14,7 @@ async function generateXMLSnippet(formData) {
 		root.att('pass', dir_key);
 
 		const {data:{formData: settings}} = formData
-		// console.log('settings as destructured: ', settings);
+		console.log('settings as destructured: ', settings);
 
 		const usesets = root.ele('usesets').att('v', '7');
 		usesets.ele('ubs', {
@@ -66,8 +66,8 @@ async function generateXMLSnippet(formData) {
 		});
 
 		const spec = secsets.ele('spec');
-		spec.att('web', settings.spectateWebsite ? 'y' : 'n');
-		spec.att('app', settings.spectateApp ? 'y' : 'n');
+		spec.att('web', settings.spectateWeb === true ? 'y' : 'n');
+		spec.att('app', settings.spectateApp === true ? 'y' : 'n');
 
 		return root;
 	} catch (error) {

@@ -11,8 +11,9 @@ responseError.message = 'Error sending to remote server';
 responseError.status = 500;
 
 async function uploadBBO(data) {
+	console.log('data in uploadBBO: ', data);
 	try {
-		const slot = data.slot;
+		const slot = data.gameCode;
 		const files = data.files;
 
 		const formData = new FormData();
@@ -24,24 +25,24 @@ async function uploadBBO(data) {
 			});
 		});
 
+		console.log('formData in uploadBBO: ', formData);
+
 		const headers = formData.getHeaders();
 
 		const response = await axios.post(`${BBO_ROUTE}?SLOT=${slot}`, formData, {
 			headers
 		});
-		const responseData = {
-			message: 'Success uploading to the remote server',
-			remoteResult: '',
-			XMLResponse: output,
-			XMLFile: response.data
-		};
-		responseData.remoteResult = remoteResponse.mapRemoteResponse(output);
-		return responseData;
+		console.log('\n\nresponse data from bbo upload \n\n', response.data)
+		console.log(typeof response.data);
+
+		return response.data;
 	} catch (error) {
 		responseError.data = error;
 		throw responseError;
 	}
 }
+
+
 
 async function uploadUSEBIO(data) {
 	try {
@@ -60,6 +61,7 @@ async function uploadUSEBIO(data) {
 		const response = await axios.post(`${USEBIO_ROUTE}?SLOT=${slot}`, formData, {
 			headers
 		});
+
 
 		const responseData = {
 			message: 'Success uploading to the remote server',

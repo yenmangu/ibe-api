@@ -50,6 +50,8 @@ async function writeAppInterfaceXML(data) {
 
 		const formData = data.data.formData;
 
+		console.log('\n ---------- formData: ----------\n', formData);
+
 		const xmlObject = {
 			setwrequest: {
 				'@version': '1.0',
@@ -72,6 +74,63 @@ async function writeAppInterfaceXML(data) {
 
 			// destructure
 			const { elementName, attributes } = element;
+			if (elementName === 'pcchg') {
+				console.log('\n + + + + ELEMENT NAME === PCCHG \n');
+
+				console.log('formdata players change: ', formData.playersChange);
+
+				xmlObject.setwrequest.pluisets.pcchg = {
+					'@dan': formData.playersChange[0].control0 === true ? 'y' : 'n',
+					'@pn': formData.playersChange[1].control1 === true ? 'y' : 'n',
+					'@tsn': formData.playersChange[2].control2 === true ? 'y' : 'n',
+					'@rcr': formData.playersChange[3].control3 === true ? 'y' : 'n'
+				};
+				console.log('pcchg written: \n', xmlObject.setwrequest.pluisets.pcchg);
+			}
+			if (elementName === 'warn') {
+				xmlObject.setwrequest.pluisets.warn = {
+					'@sw': formData.warnPlayers[0].control0 === true ? 'y' : 'n',
+					'@sh': formData.warnPlayers[1].control1 === true ? 'y' : 'n',
+					'@oo': formData.warnPlayers[2].control2 === true ? 'y' : 'n',
+					'@un': formData.warnPlayers[3].control3 === true ? 'y' : 'n',
+					'@nn': formData.warnPlayers[4].control4 === true ? 'y' : 'n'
+				};
+				console.log('warn written: \n', xmlObject.setwrequest.pluisets.warn);
+			}
+			if (elementName === 'pci') {
+				xmlObject.setwrequest.pluisets.pci = {
+					'@leads':
+						formData.playersInput[0].control0 === 'Yes'
+							? 'y'
+							: formData.playersInput[0].control0 === 'No'
+							? 'n'
+							: 'r',
+					'@auctions':
+						formData.playersInput[1].control1 === 'Yes'
+							? 'y'
+							: formData.playersInput[1].control1 === 'No'
+							? 'n'
+							: 'r',
+					'@deals': formData.playersInput[2].control2 === 'Yes' ? 'y' : 'n',
+					'@notes': formData.playersInput[3].control3 === 'Yes' ? 'y' : 'n'
+				};
+			}
+			if (elementName === 'flash') {
+				xmlObject.setwrequest.pluisets.flash = {
+					'@val': formData.flash === true ? 'y' : 'n'
+				};
+			}
+			if (elementName === 'qaba') {
+				xmlObject.setwrequest.pluisets.qaba = {
+					'@val': formData.qaba === true ? 'y' : 'n'
+				};
+			}
+			if (elementName === 'scov') {
+				xmlObject.setwrequest.pluisets.scov = {
+					'@val': formData.scov === true ? 'y' : 'n'
+				};
+			}
+			// if(elementName === '')
 			// skip the pcsee to handle later
 			if (elementName === 'pcsee') {
 				// const formGroup = xmlElement.formGroup;
@@ -94,52 +153,6 @@ async function writeAppInterfaceXML(data) {
 				xmlObject.setwrequest.pluisets.tos = {
 					'@val': timeout
 				};
-			} else if (elementName !== 'pcsee') {
-				// console.log('processing element: ', elementName);
-				// continue loop after pcsee
-				// find in the mapping data the corresponding object
-				const xmlElement = appInterfaceMapping.find(
-					m => m.xmlElement === elementName
-				);
-				// console.log('xmlElement structure: ', JSON.stringify(xmlElement, null, 2));
-				// console.log(
-				// 	'xmlElement found and structure: ',
-				// 	JSON.stringify(xmlElement, null, 2)
-				// );
-
-				console.log('xmlElement.xmlElement: ', xmlElement.xmlElement);
-				// if xmlelement is found
-				if (xmlElement && xmlElement === 'pci') {
-					const formGroup = xmlElement.formGroup;
-					// console.log('formGroup: ', formGroup);
-
-					xmlObject.setwrequest.pluisets[xmlElement.xmlElement] = {};
-					// console.log('starting inner loop');
-					attributes.forEach(attribute => {
-						xmlObject.setwrequest.pluisets[xmlElement.xmlElement][`@${attribute}`] =
-							formData[formGroup][attribute];
-					});
-				} else if (xmlElement && xmlElement !== 'pcsee' && xmlElement !== 'tos') {
-					// console.log('xmlElement processing: ', xmlElement);
-					// find the formGroup
-					const formGroup = xmlElement.formGroup;
-					// console.log(`formGroup: ${formGroup} `);
-					// initialise the new object which will become an xml element
-					xmlObject.setwrequest.pluisets[xmlElement.xmlElement] = {};
-					// inner loop to iterate through the attributes of the each element in the element array
-					// console.log('starting inner loop');
-					attributes.forEach(attribute => {
-						// console.log('attribute found: ', attribute);
-						// console.log(formGroup);
-						// set the attribute property based on the formGroup control
-						xmlObject.setwrequest.pluisets[xmlElement.xmlElement][`@${attribute}`] =
-							formData[formGroup] ? 'y' : 'n';
-						// debugging log statement
-						// console.log('looking in formData for formGroup: ', formGroup);
-						// console.log('found in formData, formGroup: ', formData[formGroup]);
-					});
-				}
-				// console.log('\n------ FINISHED PROCESSING', element, ' ------\n');
 			}
 		});
 

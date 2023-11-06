@@ -116,9 +116,21 @@ async function processCurrentGame(
 	}
 }
 
+async function processPlayerDatabase(data){
+	try {
+		console.log('process player database controller invoked with: ', data);
+		const xmlData = xmlService.writePlayerDb(data)
+		return xmlData
+
+	} catch (error) {
+		throw error
+	}
+}
+
 module.exports = {
 	readXmlFileControllerDev,
 	processJSON,
 	processXML,
-	processCurrentGame
+	processCurrentGame,
+	processPlayerDatabase
 };

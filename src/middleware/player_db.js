@@ -1,6 +1,6 @@
 const xmlController = require('../controllers/xml_controllers/xml_controller');
 
-exports.processObject = async (req, res) => {
+async function processObject(req, res) {
 	try {
 		if (!req.body) {
 			const clientError = new Error('No body in request');
@@ -8,8 +8,16 @@ exports.processObject = async (req, res) => {
 			throw clientError;
 		}
 		console.log(JSON.stringify(req.body, null, 2));
+		const data = req.body
+		console.log('req.body: ',data);
+		
+		const processedJSON = await xmlController.processPlayerDatabase(data);
+		console.log(processedJSON);
+
+
 		res.send(req.body);
 	} catch (error) {
 		throw error;
 	}
-};
+}
+module.exports = { processObject };

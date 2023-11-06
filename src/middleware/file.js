@@ -17,8 +17,8 @@ async function handleSingleFileUpload(req, res, next) {
 	console.log('handle file upload middleware invoked');
 
 	try {
-		if (!req.gameode || req.dirkey){
-			return res.status(400).json({message: ''})
+		if (!req.gameode || req.dirkey) {
+			return res.status(400).json({ message: '' });
 		}
 		if (req.file) {
 			console.log('there is a req.file');
@@ -42,6 +42,27 @@ async function handleSingleFileUpload(req, res, next) {
 	} catch (error) {
 		next(error);
 	}
+}
+
+async function handleBBO(req, res, next) {
+	console.log('handle BBO upload invoked');
+	try {
+		await new Promise((resolve, reject) => {
+			multiUpload(req, res, async err => {
+				if (err instanceof multer.MulterError) {
+					return reject(err);
+				} else if (err) {
+					return reject(err);
+				}
+				if (req.files && req.files.length > 0) {
+					resolve(req.files);
+				}
+			});
+		});
+	} catch (error) {
+		next(error);
+	}
+	next()
 }
 
 async function handleMultipleFileUpload(req, res, next) {
@@ -75,5 +96,6 @@ async function handleMultipleFileUpload(req, res, next) {
 
 module.exports = {
 	handleSingleFileUpload,
-	handleMultipleFileUpload
+	handleMultipleFileUpload,
+	handleBBO
 };
