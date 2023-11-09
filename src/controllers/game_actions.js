@@ -161,23 +161,39 @@ const manageGameActions = async (req, res, next) => {
 async function manageUploads(req, res, next) {
 	try {
 		let success;
-		const files = req.files;
+		let files;
+		if (req.files) {
+			files = req.files;
+		}
+		if (req.file) {
+			files = req.file;
+		}
 		const { gameCode, type } = req.query;
 		console.log('params', req.query);
+		console.log('request: ', req);
+
 		const clientError = new Error();
 		clientError.status = 400;
 		if (!files) {
 			clientError.message = 'No data in body';
+			return res.status(400).json(clientError);
 		}
 		const data = {
 			gameCode: gameCode,
 			files: files
 		};
+
+		// const data = {
+		// 	gameCode: gameCode,
+		// 	files: files
+		// };
+
+		console.log('data is now: ', data);
+
 		let result = {};
 
 		if (type === 'BBO') {
 			const response = await sendFiles.uploadBBO(data);
-			console.log(response);
 			// return;
 			if (response) {
 				const remoteSuccess = await parseResponse.getResponseAndError(response);
@@ -196,16 +212,35 @@ async function manageUploads(req, res, next) {
 			}
 			// const jsonFromResponse = await xmlService.convertResponse(response);
 			// const compressedJson = await compressionService(jsonFromResponse);
+		}
+		if (type === 'USEBIO') {
+			console.log('in usebio path');
 
-			res.status(200).json({ result });
+			const response = await sendFiles.uploadUSEBIO(data);
+			if (!response) {
+				return res.status(500).json({ message: 'Internal Server Error' });
+			}
+			if (response) {
+				const remoteSuccess = await parseResponse.getResponseAndError(response);
+				console.log('remote success: ', remoteSuccess);
+				if (remoteSuccess.sfAttribute === 's') {
+					console.log('sf attribute  = s');
+					result.success = true;
+					result.message = 'success';
+					console.log(result);
+				} else {
+					result.success = false;
+					result.message = remoteSuccess.errAttribute;
+				}
+				console.log('result.success: ', result.success);
+			}
 		}
 		// const { success, message } = result;
+		res.status(200).json({ result });
 	} catch (error) {
 		next(error);
 	}
 }
-
-const redateGameXML = async (req, res) => {};
 
 module.exports = {
 	manageFinalseXML,

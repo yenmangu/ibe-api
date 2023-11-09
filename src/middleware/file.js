@@ -62,7 +62,34 @@ async function handleBBO(req, res, next) {
 	} catch (error) {
 		next(error);
 	}
-	next()
+	next();
+}
+
+async function handleUSEBIO(req, res, next) {
+	try {
+		console.log('usebio multer');
+
+		await new Promise((resolve, reject) => {
+			console.log('promise made');
+
+			singleUpload(req, res, async err => {
+				if (err instanceof multer.MulterError) {
+					console.error('multer error handling file');
+					return reject(err);
+				} else if (err) {
+					console.error('error handling file');
+					return reject(err);
+				}
+				if (req.file) {
+					console.log('req.file exists');
+					resolve(req.file);
+				}
+			});
+		});
+	} catch (error) {
+		next(error);
+	}
+	next();
 }
 
 async function handleMultipleFileUpload(req, res, next) {
@@ -97,5 +124,6 @@ async function handleMultipleFileUpload(req, res, next) {
 module.exports = {
 	handleSingleFileUpload,
 	handleMultipleFileUpload,
-	handleBBO
+	handleBBO,
+	handleUSEBIO
 };

@@ -54,7 +54,7 @@ async function sendRedate(data) {
 }
 async function sendLockRequest(data) {
 	try {
-		console.log('data in sendLock(): ', data)
+		console.log('data in sendLock(): ', data);
 		const headers = { 'Content-Type': 'text/plain' };
 		const response = await axios.post(process.env.LOCK, data, { headers });
 		return response;
@@ -97,11 +97,25 @@ async function purgeRequest(data) {
 	}
 }
 
+async function writeDatabase(data) {
+	try {
+		const headers = { 'Content-Type': 'application/xml' };
+		const response = await axios.post(process.env.WRITE_DB, data, { headers });
+		if (response) {
+			return response;
+		}
+	} catch (error) {
+		throw error;
+	}
+}
+
 module.exports = {
 	uploadCurrentConfig,
 	uploadCurrentSettings,
 	sendRedate,
 	sendLockRequest,
 	sendFinaliseRequest,
-	sendSimultaneous, purgeRequest
+	sendSimultaneous,
+	purgeRequest,
+	writeDatabase
 };

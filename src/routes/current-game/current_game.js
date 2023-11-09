@@ -18,6 +18,11 @@ router.post('/base_settings', base_settings.baseSettings);
 
 router.get('/deal_file', dealFile.processCurrentDealFile);
 
+router.post('/restore-game', (req,res)=> {
+	const {gameCode, dirKey, zip} = req.body
+	res.status(200).json({message: 'Game restore route'})
+})
+
 // router.post('/base_settings');
 
 module.exports = router;

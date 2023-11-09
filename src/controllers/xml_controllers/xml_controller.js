@@ -78,6 +78,17 @@ async function processXML(xmlData) {
 		if (!parsedContent) {
 			throw new Error('Error parsing XML');
 		}
+		const {
+			root: [
+				{
+					['$']: { rev }
+				}
+			]
+		} = parsedContent.playerdb;
+		console.log('rev: ', rev);
+
+		parsedContent.currentDBRevision = rev;
+
 		const compressed = await compressJSON(parsedContent);
 		if (compressed) {
 			return compressed;
@@ -89,12 +100,7 @@ async function processXML(xmlData) {
 	}
 }
 
-async function processCurrentGame(
-	dir_key,
-	game_code,
-	formData
-
-) {
+async function processCurrentGame(dir_key, game_code, formData) {
 	try {
 		console.log('xml controller invoked');
 
@@ -116,14 +122,20 @@ async function processCurrentGame(
 	}
 }
 
-async function processPlayerDatabase(data){
+async function processPlayerDatabase(data) {
 	try {
 		console.log('process player database controller invoked with: ', data);
-		const xmlData = xmlService.writePlayerDb(data)
-		return xmlData
+		let xmlData;
+		if (data.existingName) {
+			xmlData = xmlService.updateDatabase(data);
+		} else {
+			xmlData = xmlService.writePlayerDb(data);
+			console.log('xml data: ', xmlData);
 
+		}
+		return xmlData;
 	} catch (error) {
-		throw error
+		throw error;
 	}
 }
 

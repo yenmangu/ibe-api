@@ -5,6 +5,7 @@ const playerDbMiddlewware = require ('../../middleware/player_db')
 //
 const router = express.Router();
 
-router.post('', playerDbMiddlewware.processObject )
+router.post('/new', playerDbMiddlewware.processObject )
+router.post('/update', playerDbMiddlewware.processObject )
 
 module.exports = router;
