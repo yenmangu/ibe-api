@@ -257,12 +257,11 @@ async function writePlayerDb(param) {
 		console.log('value as in the request: ', JSON.stringify(value, null, 2));
 
 		const {
-			name: [newName]
+			name: newName
 		} = value;
 		const newDate = value.$.adddate;
-		const type = value.$.type
+		const type = value.$.type;
 		let ppArray;
-
 
 		// const ppValues = value.pp
 
@@ -320,8 +319,7 @@ async function writePlayerDb(param) {
 		const final = xml.end({ prettyPrint: true });
 		console.log('xml in process player data: ', final);
 		// console.log('xml string: ', xml.toString());
-		return final
-
+		return final;
 	} catch (error) {
 		throw error;
 	}
@@ -330,7 +328,7 @@ async function writePlayerDb(param) {
 // edit player
 
 async function updateDatabase(param) {
-	console.log('data in update: ', param);
+	console.log('data in update: ', JSON.stringify(param, null, 2));
 
 	try {
 		const {
@@ -343,30 +341,33 @@ async function updateDatabase(param) {
 		// const { value, gameCode, dirKey } = data;
 
 		console.log('\n* * * * * * * * * current revision: ', dbRevision);
+		let type;
+		let adddate;
 
-		const {
-			$: { type, adddate },
-			name: [name],
-			lastplay: [
-				{
-					$: { date: lastplayDate }
-				}
-			],
-			pp: [
-				{
-					$: { n: ppValues }
-				}
-			]
-		} = value;
+		if (value.$){
+			type = value.$.type
+			adddate = value.$.adddate
+		}
 
+		let name;
+		let pp;
 		let email = '';
 		let telephone = '';
-
+		let lastplay = [];
+		if (value.name) {
+			name = value.name;
+		}
+		if (value.pp) {
+			pp = value.pp;
+		}
 		if (value.email) {
 			email = value.email;
 		}
 		if (value.telephone) {
 			telephone = value.telephone;
+		}
+		if (value.lastplay) {
+			lastplay = value.lastplay;
 		}
 		// console.log('Id array: ', idArray);
 

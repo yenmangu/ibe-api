@@ -32,6 +32,8 @@ const decryptedKey = crypto.createPrivateKey({
 
 const login = async (req, res, next) => {
 	try {
+		console.log('request \n \n \n ', req);
+
 		const { type, username, password } = req.body;
 
 		if (!type || !username || !password) {

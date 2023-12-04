@@ -105,13 +105,13 @@ const tableNumberingMapping = [
 				{
 					display: 'U.S. Presidents & Spouses',
 					value: 'presidents_spouses',
-					xmlValue: '1'
+					xmlValue: '2'
 				},
-				{ display: 'Greek Goddesses', value: 'greek_goddesses', xmlValue: '2' },
+				{ display: 'Greek Goddesses', value: 'greek_goddesses', xmlValue: '3' },
 				{
 					display: "'Tap to select/Long-press to edit'",
 					value: 'tap',
-					xmlValue: '3'
+					xmlValue: '1'
 				}
 			]
 		}

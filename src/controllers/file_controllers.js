@@ -1,39 +1,43 @@
 const fileExtensionService = require('../services/file_extension');
 
-
 const clientError = new Error();
 clientError.message = 'Invalid file';
 clientError.status = 400;
 
 async function checkFileExtension(req, res, next) {
 	try {
-		if (req.file || req.files) {
-			if (req.files) {
+		if (req.files) {
+			let fileExtensionValid = true;
+			let fileTypeDetected = '';
+			if (req.files.length > 1) {
 				const fileList = req.files.map(file => file.originalname);
 				for (const file of fileList) {
 					const fileExtension = file.substring(file.lastIndexOf('.'));
 					if (!fileExtensionService.isValidExtensionLin(fileExtension)) {
-						return res
-							.status(clientError.status)
-							.json({ message: clientError.message });
+						fileExtensionValid = false;
+						break;
+					}
+				}
+			} else {
+				const fileList = req.files.map(file => file.originalname);
+				for (const file of fileList) {
+					const fileExtension = file.substring(file.lastIndexOf('.'));
+					if (!fileExtensionService.isValidExtension(fileExtension)) {
+						fileExtensionValid = false;
+						break;
 					}
 				}
 			}
-
-			const fileName = req.file.originalname;
-			const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
-
-			if (fileExtensionService.isValidExtension(fileExtension)) {
-				// return res.status(200).json({ message: 'Correct file type received' });
-
-			} else {
+			if (!fileExtensionValid) {
 				return res
 					.status(clientError.status)
 					.json({ message: clientError.message });
 			}
+			req.fileExtensionValid = fileExtensionValid;
 		} else {
 			return next(new Error('no file or files provided'));
 		}
+		next();
 	} catch (error) {
 		next(error);
 	}

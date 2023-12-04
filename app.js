@@ -94,6 +94,7 @@ const historicGamesRoute = require('./src/routes/historic-games/historic-games')
 const publicLineupRoute = require('./src/routes/public_lineup');
 const fileRoute = require('./src/routes/files/upload_file');
 const gameActionsRoute = require('./src/routes/current-game/game_actions');
+const handActionsRoute = require('./src/routes/current-game/hand_actions');
 //Initalise App
 
 function decodeBSON(req, res, next) {
@@ -168,6 +169,7 @@ app.use('/ibescore/historic_games', historicGamesRoute);
 app.use('/ibescore/lineup', publicLineupRoute);
 app.use('/ibescore/files', fileRoute);
 app.use('/ibescore/game-actions', gameActionsRoute);
+app.use('/ibescore/hand-actions', handActionsRoute);
 
 //Assign Angular Route
 

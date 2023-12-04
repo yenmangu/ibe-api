@@ -16,23 +16,25 @@ async function saveGameConfig(gameCode, gameId, gameConfigData) {
 			throw clientError;
 		}
 
-		const north = {};
-		const south = {};
-		const east = {};
-		const west = {};
-		const tables = '';
-		const sitters = [];
+		console.log('game config data: ', gameConfigData);
+
 
 		const newGameConfig = new gameConfig({
 			game_code: gameCode,
 			game_id: gameId,
+			matchType: gameConfigData.matchType,
 			north: gameConfigData.north,
 			south: gameConfigData.south,
 			east: gameConfigData.east,
 			west: gameConfigData.west,
 			tables: gameConfigData.tables,
 			sitters: gameConfigData.sitters,
-			tableConfig: gameConfigData.tableConfig
+			tableConfig: gameConfigData.tableConfig,
+			eventName: gameConfigData.eventName,
+			pairNumbers: gameConfigData.pairNumbers,
+			pairConfig: gameConfigData.pairConfig,
+			teamConfig: gameConfigData.teamConfig,
+			individuals: gameConfigData.individuals
 		});
 
 		const result = await newGameConfig.save();

@@ -2,6 +2,8 @@ const { create } = require('xmlbuilder2');
 
 async function writeAppInterfaceXML(data) {
 	try {
+		console.log('\n\nraw data in function: ', JSON.stringify(data, null, 2), '\n\n');
+
 		// Its a suprise tool that will help us later
 		function mapResultsAttribute(ownResults, othersResults) {
 			if (ownResults && othersResults) {

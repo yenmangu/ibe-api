@@ -24,9 +24,8 @@ async function baseSettings(req, res, next) {
 
 		return res.status(200).json({ message: 'Data received', response });
 	} catch (error) {
-		throw error;
+		next(error);
 	}
 }
 
 module.exports = { baseSettings };
-

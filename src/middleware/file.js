@@ -104,6 +104,7 @@ async function handleMultipleFileUpload(req, res, next) {
 					return reject(err);
 				}
 				if (req.files && req.files.length > 0) {
+					console.log(req.files);
 					await fileExtensionController.checkFileExtension(
 						req,
 						res,
@@ -111,14 +112,18 @@ async function handleMultipleFileUpload(req, res, next) {
 							if (error) {
 								return reject(error);
 							}
+							resolve();
 						}
 					);
+				} else {
+					reject(new Error('No files uploaded'));
 				}
 			});
 		});
 	} catch (error) {
 		next(error);
 	}
+	next();
 }
 
 module.exports = {

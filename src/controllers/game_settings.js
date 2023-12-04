@@ -7,14 +7,16 @@ const namingNumberingXML = require('../services/xml_creation/naming_numbering_xm
 
 async function processSettings(bodyData) {
 	try {
+		console.log('body data: ', JSON.stringify(bodyData, null, 2));
 		let xml = undefined;
 		const {
 			data: { formName }
 		} = bodyData;
 		if (bodyData.data.formName === 'setupForm') {
 			// FOR SETUP ONLY
-			// console.log('setupForm');
-			xml = await setupSecurity.generateXMLSnippet(bodyData);
+			console.log('setupForm');
+			xml = await setupSecurity.generateNewXml(bodyData);
+			// xml = await setupSecurity.generateXMLSnippet(bodyData);
 		} else {
 			// FOR NOT SETUP
 			console.log(formName);
