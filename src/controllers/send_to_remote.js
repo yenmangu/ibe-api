@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const getRemoteResponse = require('./data/xml_response');
 const writeResponseToFile = require('./save_response');
-const errorResponse = require('./error_response');
+// const errorResponse = require('./error_response');
 
 dotenv.config();
 

@@ -1,6 +1,9 @@
 const handActionsService = require('../../services/hand_actions_service');
 const sendToRemote = require('../../services/remote/send_to_remote');
 const remoteResponse = require('../../services/remote/remote_response');
+const XmlFileService = require('../../services/xml_creation/xml_file_creation');
+const CsvFileService = require('../../services/file_creation/csv_file_creation');
+const fs = require('fs');
 
 function buildClientError(message, status) {
 	const clientError = new Error('Bad Request');
@@ -19,18 +22,6 @@ function buildClientError(message, status) {
 
 	return clientError;
 }
-
-// async function handleMovement(req, res, next) {
-// 	try {
-// 		if (!req.query) {
-// 			const error = buildClientError('No query params in request', 400);
-// 			return res.status(error.status).json(error);
-// 		}
-// 		const { gameCode, movement } = req.query;
-// 	} catch (error) {
-// 		next(error);
-// 	}
-// }
 
 async function handleHtmlPdf(req, res, next) {
 	try {
@@ -192,4 +183,100 @@ async function handleUpload(req, res, next) {
 		next(error);
 	}
 }
-module.exports = { handleHtmlPdf, handleDeleteHand, handleDownload, handleUpload };
+
+async function handleEBU(req, res, next) {
+	try {
+		const body = req.body;
+		const { action, type, chargeCode, gameCode, masterPoints } = req.body;
+		if (!gameCode) {
+			const clientError = buildClientError('No game code in request', 401);
+			return res.status(clientError.status).json(clientError.message);
+		}
+		const options = {
+			type,
+			gameCode
+		};
+
+		let response = {};
+
+		const queryString = await handActionsService.buildQueryString(options);
+		if (!queryString) {
+			throw new Error('Failed to build query string');
+		}
+
+		const serverResponse = await sendToRemote.getEBU(queryString);
+
+		// console.log('server response: ', serverResponse);
+
+		if (serverResponse.split('\n')[0].trim() !== 'failure') {
+			const xmlData = serverResponse;
+			const filePath = await XmlFileService.saveXmlToFile(xmlData);
+
+			res.setHeader('Content-Disposition', 'attachment; filename=response.xml');
+			res.setHeader('Content-Type', 'application/xml');
+			const fileStream = await fs.createReadStream(filePath);
+			fileStream.pipe(res);
+
+			fileStream.on('close', () => {
+				fs.unlink(filePath, err => {
+					if (err) {
+						throw new Error('Error deleting file');
+					} else {
+						console.log('file deleted successfully');
+					}
+				});
+			});
+		} else {
+			throw new Error(
+				`Error from remote server: ${serverResponse.split('\n')[1].trim()}`
+			);
+		}
+
+		// res.status(200).json({ message: 'success from API', response });
+	} catch (error) {
+		next(error);
+	}
+}
+
+async function handleBridgewebsDownload(req, res, next) {
+	try {
+		console.log('req: ', req.body);
+		const { gameCode } = req.body;
+		if (!gameCode) {
+			const clientError = buildClientError('No Gamecode provided', 400);
+			return res.status(clientError.status).json(clientError.message);
+		}
+		const payload = { gameCode };
+		const serverResponse = await sendToRemote.getBridgeWebs(payload);
+		if (serverResponse.split('\n')[0].trim() !== 'failure') {
+			const data = serverResponse;
+			const filePath = await CsvFileService.saveCsvToFile(data);
+
+			res.setHeader('Content-Disposition', 'attachment; filename=response.csv');
+			res.setHeader('Content-Type', 'text/csv');
+
+			const fileStream = await fs.createReadStream(filePath);
+			fileStream.pipe(res);
+
+			fileStream.on('close', () => {
+				fs.unlink(filePath, err => {
+					if (err) {
+						throw new Error('Error deleting file');
+					} else {
+						console.log('Temporary CSV response file deleted successfully');
+					}
+				});
+			});
+		}
+	} catch (error) {
+		next(error);
+	}
+}
+module.exports = {
+	handleHtmlPdf,
+	handleDeleteHand,
+	handleDownload,
+	handleUpload,
+	handleEBU,
+	handleBridgewebsDownload
+};

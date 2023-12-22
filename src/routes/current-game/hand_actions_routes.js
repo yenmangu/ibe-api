@@ -6,8 +6,20 @@ const router = express.Router();
 // router.get('/download',handActions.handleDownload)
 router.post('/movement-pdf', handActions.handleHtmlPdf);
 
-router.post('/masterpoints');
-router.post('/ebu');
+router.post('/bridgewebs', handActions.handleBridgewebsDownload);
+router.post(
+	'/ebu/download',
+	handActions.handleEBU
+	// (req, res, next) => {
+	// 	const body = req.body;
+	// 	res.status(200).json({ message: 'success', body });
+	// }
+);
+
+router.post('/ebu/upload', (req, res, next) => {
+	const body = req.body;
+	res.status(200).json({ message: 'success', body });
+});
 
 router.post('/html-pdf', handActions.handleHtmlPdf);
 

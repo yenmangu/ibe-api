@@ -352,7 +352,7 @@ async function updateDatabase(param) {
 		let name;
 		let pp;
 		let email = '';
-		let telephone = '';
+		let phone = '';
 		let lastplay = [];
 		if (value.name) {
 			name = value.name;
@@ -363,8 +363,8 @@ async function updateDatabase(param) {
 		if (value.email) {
 			email = value.email;
 		}
-		if (value.telephone) {
-			telephone = value.telephone;
+		if (value.phone) {
+			phone = value.phone;
 		}
 		if (value.lastplay) {
 			lastplay = value.lastplay;
@@ -385,7 +385,7 @@ async function updateDatabase(param) {
 		const mapping = {
 			name: 'na',
 			email: 'em',
-			telephone: 'ph',
+			phone: 'ph',
 			id: 'ids'
 		};
 
@@ -407,7 +407,7 @@ async function updateDatabase(param) {
 		}
 
 		const editString = `E na &${existingName}&${name}\nE ph &${existingName}&${
-			telephone ? telephone : ''
+			phone ? phone : ''
 		}\nE em &${existingName}&${email ? email : ''}\nE ids &${existingName}&${
 			idString ? idString : ''
 		}`;

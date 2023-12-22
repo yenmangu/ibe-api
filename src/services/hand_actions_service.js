@@ -24,6 +24,10 @@ async function buildQueryString(options) {
 				: 'html';
 		string = `SLOT=${options.gameCode}&TYPE=${options.TYPE}&P1=${format}&P2=${options.rankings}&P3=${options.fullResults}&P4=${options.handDiagrams}&P5=${options.personalScore}`;
 	}
+
+	if(options.TYPE = 'EBUP2PXML'){
+		string  = 	`SLOT=${options.gameCode}&TYPE=${options.type}&NOWRAP=TRUE`
+	}
 	console.log('string in buildString method: ', string);
 
 	return string;

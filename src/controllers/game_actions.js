@@ -149,7 +149,7 @@ const manageGameActions = async (req, res, next) => {
 				throw clientError;
 		}
 
-		console.log('result: ', result);
+		// console.log('result: ', result);
 		const { successVal, message } = success;
 
 		res.status(200).json({ message, successVal });

@@ -234,6 +234,56 @@ async function uploadCurrentSingle(gameCode, files) {
 	}
 }
 
+async function restoreGame(payload) {
+	try {
+		const config = {
+			method: 'post',
+			url: `${process.env.RAISE_DEAD}`,
+			data: payload
+		};
+
+		const response = await axios.request(config);
+
+		return response.data;
+	} catch (error) {
+		throw error;
+	}
+}
+
+async function getEBU(payloadString) {
+	try {
+		const config = {
+			method: 'get',
+			url: `${process.env.GET_FILE}?${payloadString}`
+		};
+
+		// console.log('URL: ', config.url);
+
+		const serverResponse = await axios.request(config);
+
+		return serverResponse.data;
+	} catch (error) {
+		throw error;
+	}
+}
+
+async function getBridgeWebs(payload) {
+	try {
+		const payloadString = `SLOT=${payload.gameCode}&TYPE=BRIDGEWEBS&NOWRAP=TRUE`;
+
+		const config = {
+			method: 'post',
+			url: `${process.env.GET_FILE}?${payloadString}`
+		};
+
+		const serverResponse = await axios.request(config);
+
+		return serverResponse.data;
+	} catch (error) {
+		throw error;
+	}
+}
+
 module.exports = {
 	uploadCurrentConfig,
 	uploadCurrentSettings,
@@ -246,5 +296,8 @@ module.exports = {
 	getFile,
 	deleteRequest,
 	downloadCurrent,
-	uploadCurrentSingle
+	uploadCurrentSingle,
+	restoreGame,
+	getEBU,
+	getBridgeWebs
 };
