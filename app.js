@@ -21,10 +21,13 @@ dotenv.config({
 // CORS and PORT retrieval
 const allowedOrigin = process.env.ORIGIN;
 const localHost = 'http://localhost:4200';
+const companionOrigin = process.env.COMPANION_ORIGIN;
 
-const originArray = [process.env.ORIGIN, localHost];
+const originArray = [process.env.ORIGIN, localHost, companionOrigin];
 
-console.log(`allowedOrigin/s are: ${allowedOrigin} & ${localHost}`);
+console.log(
+	`allowedOrigin/s are: ${allowedOrigin} & ${localHost} & ${companionOrigin}`
+);
 
 // app.use((req, res, next) => {
 // 	const actualOrigin = req.headers.origin;

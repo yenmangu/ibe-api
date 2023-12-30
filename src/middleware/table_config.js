@@ -13,7 +13,7 @@ exports.pocessTableConfig = async (req, res, next) => {
 			throw clientError;
 		}
 
-		console.log('body: ', JSON.stringify(body, null, 2));
+		// console.log('body: ', JSON.stringify(body, null, 2));
 		// return
 		const {
 			dir_key,
@@ -22,13 +22,15 @@ exports.pocessTableConfig = async (req, res, next) => {
 			data: { eventName, tableFormData }
 		} = body;
 		const { formData, changedFields } = tableFormData;
+		// console.log('\n ******* Event name: ', eventName, '\n *******');
 
 		const processedXML = await xmlController.processCurrentGame(
 			dir_key,
 			game_code,
 			formData,
 			changedFields,
-			dateFormData
+			dateFormData,
+			eventName
 		);
 
 		console.log('processed XML: ', processedXML);

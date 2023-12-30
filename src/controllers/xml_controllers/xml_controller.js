@@ -100,21 +100,32 @@ async function processXML(xmlData) {
 	}
 }
 
-async function processCurrentGame(dir_key, game_code, formData) {
+async function processCurrentGame(
+	dir_key,
+	game_code,
+	formData,
+	changedFields,
+	dateFormData,
+	eventName
+) {
 	try {
 		console.log('xml controller invoked');
+		// console.log('all form data in xml controller: ', formData, '\n');
+
+		// console.log('formData in xml controller: ', formData);
 
 		const currentMatchArrays =
 			player_cardinal_extraction.extractCardinalPlayers(formData);
-		console.log('data arrays:  ', currentMatchArrays);
+		// console.log('data arrays:  ', currentMatchArrays);
 
 		const currentGameXML = await xmlService.createCurrentGameXML(
 			dir_key,
 			game_code,
-			currentMatchArrays
+			currentMatchArrays,
+			eventName
 		);
 
-		console.log('Current Game XML: \n', currentGameXML);
+		// console.log('Current Game XML: \n', currentGameXML);
 		// return
 		return currentGameXML;
 	} catch (error) {
@@ -131,7 +142,6 @@ async function processPlayerDatabase(data) {
 		} else {
 			xmlData = xmlService.writePlayerDb(data);
 			console.log('xml data: ', xmlData);
-
 		}
 		return xmlData;
 	} catch (error) {

@@ -167,7 +167,7 @@ const elementMapping = {
 	sides: 'sn',
 	boardCol: 'colstxt',
 	sitters: 'sittxt',
-	hadicaps: 'handi',
+	handicaps: 'handi',
 	strat: 'strattxt',
 	venues: 'tbln',
 	abbreviations: 'nkstxt',
@@ -177,10 +177,12 @@ const elementMapping = {
 	lunch: 'lunchtxt'
 };
 
-async function createCurrentGameXML(dirKey, gameCode, formData) {
+async function createCurrentGameXML(dirKey, gameCode, formData, eventName) {
 	try {
 		// xml logic
 		console.log('xml service invoked');
+		// console.log('formData in xmlService: ', formData)
+
 		for (const key in formData) {
 			if (Array.isArray(formData[key])) {
 				for (let i = 0; i < formData[key].length; i++) {
@@ -202,10 +204,12 @@ async function createCurrentGameXML(dirKey, gameCode, formData) {
 		root.att('svs', `-v-10126j-v-${gameCode}`).att('pass', `${dirKey}`);
 		root
 			.ele('revs')
+
 			.att('grev', '200')
 			.att('mrev', '-1')
 			.att('nrev', '400')
 			.att('rrev', 0);
+		root.ele('en').dat(`${eventName}`);
 
 		for (const key in formData) {
 			if (elementMapping[key]) {
@@ -256,9 +260,7 @@ async function writePlayerDb(param) {
 
 		console.log('value as in the request: ', JSON.stringify(value, null, 2));
 
-		const {
-			name: newName
-		} = value;
+		const { name: newName } = value;
 		const newDate = value.$.adddate;
 		const type = value.$.type;
 		let ppArray;
@@ -344,9 +346,9 @@ async function updateDatabase(param) {
 		let type;
 		let adddate;
 
-		if (value.$){
-			type = value.$.type
-			adddate = value.$.adddate
+		if (value.$) {
+			type = value.$.type;
+			adddate = value.$.adddate;
 		}
 
 		let name;

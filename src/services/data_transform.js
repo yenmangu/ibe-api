@@ -23,7 +23,7 @@ function extractCardinalPlayers(formData) {
 			}
 		}
 	}
-	console.log('temp result: ', tempResult);
+	// console.log('temp result: ', tempResult);
 	const result = {};
 	if (result.sides) {
 		result.sides = tempResult.sides;
@@ -36,6 +36,17 @@ function extractCardinalPlayers(formData) {
 	result.abbreviations = tempResult.ns_abbrev.concat(tempResult.ew_abbrev);
 	result.nsPlayers = tempResult.north.concat(tempResult.south);
 	result.ewPlayers = tempResult.east.concat(tempResult.west);
+
+	let tempSitters = [];
+	tempSitters = tempResult.ns_sitters.concat(tempResult.ew_sitters);
+	result.sitters = tempSitters.map(value => (value === true ? 'y' : ''));
+
+	console.log('Sitters: ', result.sitters);
+
+	// Object.keys(tempSitters).forEach(key => {
+	// 	sitters[key] = tempSitters[key] ? 'y' : '';
+	// });
+	// result.sitters = sitters;
 
 	const tableTotal = tempResult.north.length;
 	let timeFrom = [];
@@ -63,7 +74,7 @@ function extractCardinalPlayers(formData) {
 	if (result.team_name) {
 		result.team_name = tempResult.team_name;
 	}
-	console.log('after transform: ', result);
+	// console.log('after transform: ', result);
 	return result;
 }
 module.exports = { extractCardinalPlayers };

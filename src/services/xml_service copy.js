@@ -160,43 +160,7 @@ async function createCurrentGameXML(dirKey, gameCode, formData) {
 			}
 		}
 
-
 		const builder = new xml2js.Builder({renderOpts:{pretty: true, allowEmpty: true } })
-
-	// 	const root = {
-	// 		gnvrequest: {
-	// 			$: {
-	// 				svs: `-v-10126j-v-${gameCode}`,
-	// 				pass: `${dirKey}`
-	// 			},
-	// 			revs: {
-	// 				$: {
-	// 					grev: '200',
-	// 					mrev: '-1',
-	// 					nrev: '400',
-	// 					rrev: '0'
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// 	for (const key in formData) {
-	// 		if (elementMapping[key]) {
-	// 				if (Array.isArray(formData[key])) {
-	// 						root.gnvrequest[elementMapping[key]] = { _: '\n' };
-	// 						const filteredData = formData[key].filter(value => value !== null);
-	// 						if (filteredData.length > 0) {
-	// 								root.gnvrequest[elementMapping[key]]._ = '\n' + filteredData.join('\n');
-	// 						}
-	// 				} else {
-	// 						if (formData[key] !== null) {
-	// 								root.gnvrequest[elementMapping[key]] = { _: formData[key] };
-	// 						} else {
-	// 								root.gnvrequest[elementMapping[key]] = { _: '\n' };
-	// 						}
-	// 				}
-	// 		}
-	// }
-	// return builder.buildObject(root)
 
 		const root = xmlbuilder.create('gnvrequest', {
 			version: '1.0',
@@ -211,35 +175,11 @@ async function createCurrentGameXML(dirKey, gameCode, formData) {
 			.att('nrev', '400')
 			.att('rrev', 0);
 
-		// for (const key in formData) {
-		// 	if (elementMapping[key]) {
-		// 		const element = root.ele(elementMapping[key]);
-		// 		if (Array.isArray(formData[key])) {
-		// 			const filteredData = formData[key].filter(value => value !== null);
-		// 			if (filteredData.length > 0) {
-		// 				element.dat(filteredData[0]);
-		// 				if (filteredData.length > 1) {
-		// 					for (let i = 1; i < filteredData.length; i++) {
-		// 						element.txt(`${filteredData[i]}`);
-		// 					}
-		// 				}
-		// 			} else {
-		// 				element.txt('\n');
-		// 			}
-		// 		} else {
-		// 			if (formData[key] !== null) {
-		// 				element.dat(`${formData[key]}`);
-		// 			} else {
-		// 				element.txt('\n');
-		// 			}
-		// 		}
-		// 	}
-		// }
 		for (const key in formData){
 			if(Array.isArray(formData[key])){
 				for(leti=0; i<formData[key].length; i++){
 					if(formData[key][i]=== null){
-						
+
 					}
 				}
 			}

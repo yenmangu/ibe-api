@@ -3,7 +3,7 @@ const succesOrFailure = require('../services/remote/remote_response.js');
 
 async function remoteCommunication(xmlData) {
 	try {
-		console.log('xmlData in remoteComms: ', xmlData);
+		// console.log('xmlData in remoteComms: ', xmlData);
 		const serverResponse = await sendToRemote.uploadCurrentConfig(xmlData);
 		// console.log('remote response.data: ', serverResponse.data);
 
