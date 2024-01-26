@@ -35,6 +35,9 @@ exports.pocessTableConfig = async (req, res, next) => {
 
 		console.log('processed XML: ', processedXML);
 
+		// Do not send to remote
+		// return;
+
 		const remoteSuccess = await currentGameController.remoteCommunication(
 			processedXML
 		);

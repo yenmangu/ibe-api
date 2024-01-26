@@ -1,7 +1,11 @@
 const axios = require('axios');
-const formData = require('form-data');
 const serverResponse = require('./remote_response');
 const { query } = require('express');
+const FormData = require('form-data');
+
+function getFormDataHeaders(formData) {
+	return { 'Content-Type': `multipart/form-data; boundary=${formData._boundary}` };
+}
 
 async function uploadCurrentConfig(data) {
 	try {
@@ -284,6 +288,70 @@ async function getBridgeWebs(payload) {
 	}
 }
 
+async function dbFromBW(data) {
+	try {
+		const formData = new FormData();
+		formData.append('diasel', '1');
+		formData.append('diacc', `${data.payload.accountName}`);
+		formData.append('diapass', `${data.payload.accountPass}`);
+		if (data.payload.contactInfo) {
+			formData.append('diaupfrombwincpdcb', 'on');
+		}
+		if (data.payload.excludePlayers) {
+			formData.append('diaupfrombwdelcb', 'on');
+		}
+		formData.append('upload', data.payload.fileContent, '');
+
+		const config = {
+			method: 'post',
+			url: `${process.env.FROM_BW}?SLOT=${data.gameCode}`,
+			data: formData,
+			maxContentLength: Infinity,
+			headers: {
+				'Content-Type': `multipart/form-data; boundary=${formData._boundary}`
+			}
+		};
+
+		const serverResponse = await axios.request(config);
+		return serverResponse.data;
+	} catch (error) {
+		throw error;
+	}
+}
+
+async function sendPlayerDb(payload) {
+	try {
+		console.log('Send Player db payload: ', payload);
+
+		const { readStream } = payload;
+
+		const formData = new FormData();
+		formData.append('diasel', '4');
+		formData.append('diacc', '');
+		formData.append('diapass', '');
+		formData.append('upload', readStream);
+
+		const config = {
+			method: 'post',
+			url: `${process.env.IMPORT_DB}?SLOT=${payload.gameCode}`,
+			data: formData,
+			maxContentLength: Infinity,
+			headers: getFormDataHeaders(formData),
+			timeout: 20000
+		};
+
+		console.log('about to send to remote');
+
+		const response = await axios.request(config);
+		console.log('awaiting response from server');
+		return response.data;
+	} catch (error) {
+		console.error('Error sending data: ', error);
+		console.error('Error stack: ', error.stack);
+		throw error;
+	}
+}
+
 module.exports = {
 	uploadCurrentConfig,
 	uploadCurrentSettings,
@@ -299,5 +367,7 @@ module.exports = {
 	uploadCurrentSingle,
 	restoreGame,
 	getEBU,
-	getBridgeWebs
+	getBridgeWebs,
+	dbFromBW,
+	sendPlayerDb
 };

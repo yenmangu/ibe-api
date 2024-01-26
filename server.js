@@ -5,6 +5,14 @@ const debug = require('debug')('node-angular');
 const http = require('http');
 const path = require('path');
 
+process.on('unhandledRejection', (reason, promise) => {
+	console.error('Unhandled rejection at: ', promise, 'reason: ', reason);
+});
+
+process.on('uncaughtException', error => {
+	console.error('Uncaught Exception:', error);
+});
+
 const normalizePort = val => {
 	var port = parseInt(val, 10);
 

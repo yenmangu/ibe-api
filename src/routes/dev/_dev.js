@@ -4,7 +4,7 @@ const path = require('path');
 const router = express.Router();
 const fs = require('fs');
 const xmlController = require('../../controllers/xml_controllers/xml_controller');
-const xmlService = require('../../services/xml_service');
+const xmlService = require('../../services/xml_processing/xml_service');
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
@@ -24,13 +24,13 @@ router.get('/dummy_xml', async (req, res) => {
 
 		// const compressedData = await xmlController.readXmlFileControllerDev(filename);
 		if (compressedData) {
-			console.log(compressedData.length.toString())
+			console.log(compressedData.length.toString());
 			// console.log(compressedData);
 			// return
 			res.setHeader('Content-Type', 'application/json');
 			res.setHeader('Content-Encoding', 'gzip');
 			res.setHeader('Content-Length', compressedData.length.toString());
-			res.status(200).end( compressedData );
+			res.status(200).end(compressedData);
 			// res.status(200).send({ compressedData });
 			// res.status(200).send('wow')
 		} else {

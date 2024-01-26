@@ -6,8 +6,7 @@ const {
 	processJSON,
 	processXML
 } = require('../controllers/xml_controllers/xml_controller');
-const xml_service = require('../services/xml_service');
-
+const xml_service = require('../services/xml_processing/xml_service');
 
 router.get('/', async (req, res) => {
 	try {
@@ -65,7 +64,7 @@ router.post('/', async (req, res) => {
 			console.log('received-data: ', data);
 			const response = await processJSON(data);
 
-			console.log('remote-response: ',response);
+			console.log('remote-response: ', response);
 			// console.log('data in api: ', data);
 			res.status(200).json({ message: 'Data Receieved by API' });
 		}

@@ -278,5 +278,6 @@ module.exports = {
 	handleDownload,
 	handleUpload,
 	handleEBU,
-	handleBridgewebsDownload
+	handleBridgewebsDownload,
+	buildClientError
 };

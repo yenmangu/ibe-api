@@ -11,6 +11,11 @@ async function handlePaymaticWebhook(req, res) {
 
 	const payload = req.body;
 
+	// DEV
+	
+
+	// console.log('PAYLOAD: ', payload);
+
 	const key = payload.customer_name_1;
 	const decodedkey = key.replace(/(%20)?/g, '');
 	console.log('Payload URL: ', key);

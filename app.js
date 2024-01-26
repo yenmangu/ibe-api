@@ -22,12 +22,16 @@ dotenv.config({
 const allowedOrigin = process.env.ORIGIN;
 const localHost = 'http://localhost:4200';
 const companionOrigin = process.env.COMPANION_ORIGIN;
+const devCompanionOrigin = process.env.DEV_COMPANION_ORIGIN;
 
-const originArray = [process.env.ORIGIN, localHost, companionOrigin];
+const originArray = [
+	process.env.ORIGIN,
+	localHost,
+	companionOrigin,
+	devCompanionOrigin
+];
 
-console.log(
-	`allowedOrigin/s are: ${allowedOrigin} & ${localHost} & ${companionOrigin}`
-);
+console.log(`allowedOrigin/s are: ${originArray}`);
 
 // app.use((req, res, next) => {
 // 	const actualOrigin = req.headers.origin;
@@ -65,13 +69,15 @@ console.log(
 
 const corsOptions = {
 	optionsSuccessStatus: 200,
+	// allowedHeaders: ['X-Filename'],
 	origin: function (origin, callback) {
 		if (originArray.includes(origin) || !origin) {
 			callback(null, true);
 		} else {
 			callback(new Error('unauthorized Origin'));
 		}
-	}
+	},
+	exposedHeaders: ['X-Filename']
 };
 
 app.use(cors(corsOptions));
@@ -99,6 +105,7 @@ const fileRoute = require('./src/routes/files/upload_file');
 const gameActionsRoute = require('./src/routes/current-game/game_actions_routes');
 const handActionsRoute = require('./src/routes/current-game/hand_actions_routes');
 const spectateRoute = require('./src/routes/spectate');
+const adminToolsRoute = require('./src/routes/admin_tools');
 //Initalise App
 
 function decodeBSON(req, res, next) {
@@ -168,13 +175,14 @@ app.use('/ibescore/mail', mailRoute);
 app.use('/ibescore/register', newRegistrationRoute);
 app.use('/ibescore/database', receivedDataRoute);
 app.use('/ibescore/current_game', curentGameRoute);
-app.use('/ibescore/player_database', playerDbRoute);
+app.use('/ibescore/player-database', playerDbRoute);
 app.use('/ibescore/historic-games', historicGamesRoute);
 app.use('/ibescore/lineup', publicLineupRoute);
 app.use('/ibescore/files', fileRoute);
 app.use('/ibescore/game-actions', gameActionsRoute);
 app.use('/ibescore/hand-actions', handActionsRoute);
 app.use('/ibescore/spectate', spectateRoute);
+app.use('/ibescore/admin-tools', adminToolsRoute);
 
 //Assign Angular Route
 

@@ -1,10 +1,12 @@
 const path = require('path');
 const { readFileAsync, writeFileAsync } = require('../../services/file_service');
-const xmlService = require('../../services/xml_service');
+const xmlService = require('../../services/xml_processing/xml_service');
 const compressJSON = require('../../services/compression');
 const player_cardinal_extraction = require('../../services/data_transform');
+const databaseXml = require('../../services/xml_creation/database_xml');
 const sendToRemote = require('../../services/remote/send_to_remote');
-
+const remoteRresponse = require('../../services/remote/remote_response');
+const xmlFileService = require('../../services/file_creation/xml_file_creation');
 let counter = 1;
 
 async function readXmlFileControllerDev(filename) {
@@ -149,10 +151,95 @@ async function processPlayerDatabase(data) {
 	}
 }
 
+async function coordinateDataExtraction(xmlData, elementName) {
+	try {
+		const santisedXml = xmlService.sanitiseXml(xmlData);
+		const parsedXml = await xmlService.parseXML(santisedXml);
+		const playerDBJson = await parsedXml.siteauthresponse.playerdb;
+		const playerDBXml = await databaseXml.writeDatabaseXml(playerDBJson);
+		// console.log(playerDBXml);
+		// console.log('Parsed playerdb XML: ', JSON.stringify(parsedXml, null, 2));
+		return playerDBXml;
+	} catch (error) {
+		throw error;
+	}
+}
+
+async function importEntirePlayerDb(data) {
+	try {
+		// console.log('importEntirePlayerDb data: ', data);
+		const { gameCode, dirKey, importData, meta } = data;
+
+		console.log('Import Entire DB data: ', gameCode, importData);
+
+		// const dataRows = importData.slice(1);
+
+		const xmlString = await databaseXml.writeDbFromCsv(importData);
+		xmlString.trim();
+
+		const xmlFilePath = await xmlFileService.saveXmlToFile(xmlString);
+		const readStream = await readFileAsync(xmlFilePath, 'UTF-8');
+		console.log('Read stream created');
+		const xmlResponse = await sendToRemote.sendPlayerDb({ readStream, gameCode });
+
+		const remoteResult = await remoteRresponse.getResponseAndError(xmlResponse);
+		const response = {
+			success: false,
+			error: ''
+		};
+		let success = false;
+		let remoteError = '';
+		if (remoteResult.sfAttribute === 's') {
+			response.success = true;
+		} else if (remoteResult.sfAttribute === 'f') {
+			console.log('Server Result: ', xmlResponse);
+			console.log('Server response: ', remoteRresponse);
+
+			response.error = remoteResult.errAttribute;
+		}
+
+		console.log('remote result: ', remoteResult);
+
+		// console.log('response', response);
+		//
+		return response;
+	} catch (error) {
+		throw error;
+	}
+}
+
+async function coordinateDbDelete(data) {
+	try {
+		const { gameCode } = data;
+		const emptyXml = await databaseXml.writeEmpty();
+		const xmlFilePath = await xmlFileService.saveXmlToFile(emptyXml);
+		const readStream = await readFileAsync(xmlFilePath, 'UTF-8');
+		const xmlResponse = await sendToRemote.sendPlayerDb({ readStream, gameCode });
+		const remoteResult = await remoteRresponse.getResponseAndError(xmlResponse);
+
+		const response = {
+			success: false,
+			error: ''
+		};
+
+		if (remoteResult.sfAttribute === 's') {
+			response.success = true;
+		} else if (remoteResult.sfAttribute === 'f') {
+			response.error = remoteResult.errAttribute;
+		}
+		return response;
+	} catch (error) {
+		throw error;
+	}
+}
+
 module.exports = {
 	readXmlFileControllerDev,
 	processJSON,
 	processXML,
 	processCurrentGame,
-	processPlayerDatabase
+	processPlayerDatabase,
+	coordinateDataExtraction,
+	importEntirePlayerDb,
+	coordinateDbDelete
 };

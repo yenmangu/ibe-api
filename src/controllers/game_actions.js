@@ -3,7 +3,7 @@ const gameActionsText = require('../services/game_actions_text');
 const sendToRemote = require('../services/remote/send_to_remote');
 const parseResponse = require('../services/remote/remote_response');
 const sendFiles = require('../services/remote/send_files');
-const xmlService = require('../services/xml_service');
+const xmlService = require('../services/xml_processing/xml_service');
 const compressionService = require('../services/compression');
 
 const manageFinalseXML = async (req, res) => {

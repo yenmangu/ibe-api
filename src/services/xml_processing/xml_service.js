@@ -1,7 +1,42 @@
 const xml2js = require('xml2js');
-const xmlescape = require('xml-escape');
 const xmlbuilder = require('xmlbuilder');
 const { create } = require('xmlbuilder2');
+
+async function parseXML(xmlDoc) {
+	try {
+		const parser = new xml2js.Parser({ explicitArray: false, mergeAttrs: true });
+		const parsedXml = await new Promise((resolve, reject) => {
+			parser.parseString(xmlDoc, (err, result) => {
+				if (err) {
+					console.error('XML Parsing error: ', err);
+					reject(err);
+				} else {
+					resolve(result);
+				}
+			});
+		});
+		let sfVal = null;
+		let sfError = null;
+		if (parsedXml.siteauthresponse) {
+			// console.log(parsedXml.siteauthresponse.sf);
+			sfVal = parsedXml.siteauthresponse.sf;
+		}
+		console.log('sfVal from received data: ', sfVal);
+
+		if (sfVal !== 's') {
+			sfError = parsedXml.siteauthresponse.err;
+			console.log(parsedXml.siteauthresponse);
+
+			throw new Error(
+				`Error from remote server, 'sf' value: ${sfVal} and Error: ${sfError}`
+			);
+		} else {
+			return parsedXml;
+		}
+	} catch (error) {
+		throw error;
+	}
+}
 
 async function parseSfAttribute(xmlResponse) {
 	try {
@@ -177,6 +212,23 @@ const elementMapping = {
 	lunch: 'lunchtxt'
 };
 
+const writeElementMapping = {
+	eventName: 'en',
+	players: 'pn',
+	team_name: 'tn',
+	sides: 'sn',
+	boardCol: 'colstxt',
+	sitters: 'sit',
+	handicaps: 'handi',
+	strat: 'strattxt',
+	venues: 'tbln',
+	abbreviations: 'nkstxt',
+	labels: 'tagstxt',
+	adjustments: 'gradj',
+	times: 'rdtstxt',
+	lunch: 'lunchtxt'
+};
+
 async function createCurrentGameXML(dirKey, gameCode, formData, eventName) {
 	try {
 		// xml logic
@@ -212,8 +264,8 @@ async function createCurrentGameXML(dirKey, gameCode, formData, eventName) {
 		root.ele('en').dat(`${eventName}`);
 
 		for (const key in formData) {
-			if (elementMapping[key]) {
-				const element = root.ele(elementMapping[key]);
+			if (writeElementMapping[key]) {
+				const element = root.ele(writeElementMapping[key]);
 				if (Array.isArray(formData[key])) {
 					const filteredData = formData[key].filter(value => value !== null);
 					if (filteredData.length > 0) {
@@ -449,7 +501,9 @@ module.exports = {
 	createCurrentGameXML,
 	writePlayerDb,
 	convertResponse,
-	updateDatabase
+	updateDatabase,
+	sanitiseXml,
+	parseXML
 };
 
 //
