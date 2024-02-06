@@ -321,7 +321,7 @@ async function dbFromBW(data) {
 
 async function sendPlayerDb(payload) {
 	try {
-		console.log('Send Player db payload: ', payload);
+		// console.log('Send Player db payload: ', payload);
 
 		const { readStream } = payload;
 

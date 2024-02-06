@@ -192,8 +192,8 @@ async function importEntirePlayerDb(data) {
 		if (remoteResult.sfAttribute === 's') {
 			response.success = true;
 		} else if (remoteResult.sfAttribute === 'f') {
-			console.log('Server Result: ', xmlResponse);
-			console.log('Server response: ', remoteRresponse);
+			console.log('Server response: ', xmlResponse);
+			console.log('Server result: ', remoteResult);
 
 			response.error = remoteResult.errAttribute;
 		}
@@ -212,9 +212,15 @@ async function coordinateDbDelete(data) {
 	try {
 		const { gameCode } = data;
 		const emptyXml = await databaseXml.writeEmpty();
+		// console.log('empty xml: ', emptyXml);
+
+		// return;
+
 		const xmlFilePath = await xmlFileService.saveXmlToFile(emptyXml);
 		const readStream = await readFileAsync(xmlFilePath, 'UTF-8');
 		const xmlResponse = await sendToRemote.sendPlayerDb({ readStream, gameCode });
+		console.log('xmlResponse: ', xmlResponse);
+
 		const remoteResult = await remoteRresponse.getResponseAndError(xmlResponse);
 
 		const response = {

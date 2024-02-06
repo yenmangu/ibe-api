@@ -3,6 +3,9 @@ const { convertURL } = require('../services/url_string_extraction');
 
 const timeout = 10000;
 
+const modifiedDataTab = 'new_lin';
+const bulkConvertTest = 'BULK_convert_test';
+
 async function handlePaymaticWebhook(req, res) {
 	if (!req.body) {
 		console.log('Bad Request: Body not found');
@@ -12,7 +15,6 @@ async function handlePaymaticWebhook(req, res) {
 	const payload = req.body;
 
 	// DEV
-	
 
 	// console.log('PAYLOAD: ', payload);
 
@@ -37,7 +39,10 @@ async function handlePaymaticWebhook(req, res) {
 
 			// console.log('newDataArray: ', newDataArray);
 
-			const response = await linSheetsController.addData(newDataArray);
+			const response = await linSheetsController.addData(
+				newDataArray,
+				modifiedDataTab
+			);
 			if (response) {
 				res.status(200).send('Success adding to google sheet');
 			}
@@ -48,4 +53,29 @@ async function handlePaymaticWebhook(req, res) {
 	}, timeout);
 }
 
-module.exports = { handlePaymaticWebhook };
+async function handleBulkConvert(req, res, next) {
+	try {
+		console.log('request query: ', req.query);
+		console.log('request params: ', req.params);
+
+		// if (Object.keys(req.query).length < 1) {
+		// 	return res
+		// 		.status(400)
+		// 		.json({ message: 'Bad request: missing query parameters' });
+		// }
+		const processedData = await linSheetsController.bulkProcess();
+		const batchResponse = await linSheetsController.addBulkData(processedData);
+		let errorArray = [];
+
+		res.status(200).json({ processedData });
+		return;
+
+		res
+			.status(200)
+			.json({ message: 'Success from handle bulk convert controller' });
+	} catch (error) {
+		next(error);
+	}
+}
+
+module.exports = { handlePaymaticWebhook, handleBulkConvert };

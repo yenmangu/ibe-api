@@ -14,9 +14,11 @@ async function writeDatabaseXml(jsonData) {
 
 async function writeEmpty() {
 	try {
-		const root = create({ version: '1.0' }).ele('root', { rev: '1' });
+		const root = create({ version: '1.0' }).ele('root', { rev: '1' }).txt('');
 		const xmlString = root.end({ prettyPrint: true });
 		xmlString.trim();
+		console.log(`xml string: "${xmlString}"`);
+
 		return xmlString;
 	} catch (error) {
 		throw error;
@@ -33,11 +35,7 @@ async function writeDbFromCsv(importData) {
 
 		headers.forEach((entry, index) => {
 			const formattedHeader = entry.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '_');
-			if (formattedHeader === 'name_first_name_surname_') {
-				headerMap['name'] = index;
-			} else {
-				headerMap[formattedHeader] = index;
-			}
+			headerMap[formattedHeader] = index;
 		});
 
 		console.log('headerMap: ', headerMap);
@@ -58,31 +56,40 @@ async function writeDbFromCsv(importData) {
 				const formattedHeader = header.toLowerCase().replace(/[^a-zA-Z0-9]+/g, '_');
 
 				const columnIndex = headerMap[formattedHeader];
+
 				const value = columnIndex !== undefined ? row[columnIndex] : '';
+				console.log('Row data: ', row);
+				console.log('EBU value: ', row[headerMap['ebu']]);
+				console.log('BBO value: ', row[headerMap['bbo']]);
 
 				if (value) {
 					const idArray = [];
-					if (row[headerMap['EBU']] || row[headerMap['BBO']]) {
-						if (row[headerMap['EBU']]) {
-							idArray.push({
-								type: 'EBU',
-								code: row[3]
-							});
-						}
-						if (row[headerMap['BBO']]) {
-							idArray.push({
-								type: 'BBO',
-								code: row[4]
-							});
-						}
-						if (idArray.length > 0) {
-							idArray.forEach(idElement => {
-								item.ele('id', idElement);
-							});
-						}
+					if (formattedHeader === 'ebu' || formattedHeader === 'bbo') {
+						item.ele('id', { type: formattedHeader.toUpperCase(), code: value });
 					} else {
 						item.ele(formattedHeader).dat(value);
 					}
+					// if (headers.includes('ebu') || headers.includes('bbo')) {
+					// 	if (headers.includes('ebu') && row[headerMap['ebu']]) {
+					// 		idArray.push({
+					// 			type: 'EBU',
+					// 			code: row[headerMap['ebu']]
+					// 		});
+					// 	}
+					// 	if (headers.includes('bbo') && row[headerMap['bbo']]) {
+					// 		idArray.push({
+					// 			type: 'BBO',
+					// 			code: row[headerMap['bbo']]
+					// 		});
+					// 	}
+					// 	if (idArray.length > 0) {
+					// 		idArray.forEach(idElement => {
+					// 			item.ele('id', idElement);
+					// 		});
+					// 	}
+					// } else {
+					// 	item.ele(formattedHeader).dat(value);
+					// }
 				}
 			});
 
@@ -91,8 +98,8 @@ async function writeDbFromCsv(importData) {
 			// item.ele('phone').dat(row[2]);
 		});
 
-		const xmlString = root.end({ prettyPrint: true });
-		xmlString.trim();
+		const xmlString = root.end({ prettyPrint: true }).trim();
+		// xmlString = xmlString.trim();
 		console.log('DATA WRITTEN. returning XML string: ', xmlString);
 		// return;
 		return xmlString;

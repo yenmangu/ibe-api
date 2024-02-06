@@ -40,4 +40,10 @@ router.post('/sending-data', async (req, res) => {
 	console.log('Success adding data');
 });
 
+router.get(
+	'/bulk-convert',
+	webhookValidation.validateRequest,
+	webhookController.handleBulkConvert
+);
+
 module.exports = router;

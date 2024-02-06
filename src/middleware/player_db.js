@@ -183,8 +183,9 @@ async function handleDatabaseImport(req, res, next) {
 async function handleDeleteRequest(req, res, next) {
 	try {
 		const { gameCode, dirKey } = req.query;
-		console.log(req);
+		// console.log(req);
 		const serverResponse = await xmlController.coordinateDbDelete({ gameCode });
+
 		res.status(200).json({ serverResponse });
 	} catch (error) {
 		console.error('Error ');

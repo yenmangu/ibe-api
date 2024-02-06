@@ -8,7 +8,6 @@ function convertURL(inputString) {
 		console.log('skipping BBO');
 		return;
 	}
-	
 
 	const step1Result = inputString.replace(/^.*\?lin=/, 'qx|o*|');
 
@@ -20,7 +19,7 @@ function convertURL(inputString) {
 	}
 
 	// Step 3: Replace "*" with the extracted board number
-	console.log(boardNumber);
+	// console.log(boardNumber);
 	const step3Result = step1Result.replace(/\*/, boardNumber);
 
 	// Step 4: Replace usernames
@@ -35,7 +34,7 @@ function convertURL(inputString) {
 
 	const replacement = '|pn|south,west,north,east|';
 
-	const finalResult = step3Result.replace(/\|pn\|[^|]*\|/g, replacement)
+	const finalResult = step3Result.replace(/\|pn\|[^|]*\|/g, replacement);
 
 	// for (let i = 0; i < usernames.length; i++) {
 	// 	replacement = replacement.replace(usernames[i], usernames[i]);
