@@ -55,8 +55,7 @@ async function handlePaymaticWebhook(req, res) {
 
 async function handleBulkConvert(req, res, next) {
 	try {
-		console.log('request query: ', req.query);
-		console.log('request params: ', req.params);
+		// console.log('Request: ', req);
 
 		// if (Object.keys(req.query).length < 1) {
 		// 	return res

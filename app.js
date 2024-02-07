@@ -106,6 +106,7 @@ const gameActionsRoute = require('./src/routes/current-game/game_actions_routes'
 const handActionsRoute = require('./src/routes/current-game/hand_actions_routes');
 const spectateRoute = require('./src/routes/spectate');
 const adminToolsRoute = require('./src/routes/admin_tools');
+const adminVerifyRoute = require('./src/routes/verify_admin');
 //Initalise App
 
 function decodeBSON(req, res, next) {
@@ -183,6 +184,7 @@ app.use('/ibescore/game-actions', gameActionsRoute);
 app.use('/ibescore/hand-actions', handActionsRoute);
 app.use('/ibescore/spectate', spectateRoute);
 app.use('/ibescore/admin-tools', adminToolsRoute);
+app.use('/ibescore/verification', adminVerifyRoute);
 
 //Assign Angular Route
 

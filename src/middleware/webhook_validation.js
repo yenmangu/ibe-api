@@ -3,6 +3,7 @@ const dotenv = require('dotenv').config();
 const token = process.env.WEBHOOK_TOKEN;
 
 function validateRequest(req, res, next) {
+	console.log("Validate Request 'req' : ", req.headers);
 	// console.log(token);
 	const authHeader = req.header('Authorization');
 
