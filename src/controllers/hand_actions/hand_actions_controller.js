@@ -187,9 +187,15 @@ async function handleUpload(req, res, next) {
 async function handleEBU(req, res, next) {
 	try {
 		const body = req.body;
-		const { action, type, chargeCode, gameCode, masterPoints } = req.body;
+		console.log('Body: ', body);
+
+		const { type, gameCode, formData } = req.body;
 		if (!gameCode) {
 			const clientError = buildClientError('No game code in request', 401);
+			return res.status(clientError.status).json(clientError.message);
+		}
+		if (!formData) {
+			const clienError = buildClientError('No form data in request', 400);
 			return res.status(clientError.status).json(clientError.message);
 		}
 		const options = {
@@ -204,7 +210,11 @@ async function handleEBU(req, res, next) {
 			throw new Error('Failed to build query string');
 		}
 
-		const serverResponse = await sendToRemote.getEBU(queryString);
+		const formDataString = await handActionsService.buildEbuElement(formData);
+
+		// return;
+
+		const serverResponse = await sendToRemote.getEBU(queryString, formDataString);
 
 		// console.log('server response: ', serverResponse);
 

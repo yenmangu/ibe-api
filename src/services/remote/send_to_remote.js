@@ -254,13 +254,20 @@ async function restoreGame(payload) {
 	}
 }
 
-async function getEBU(payloadString) {
+async function getEBU(queryString, formDataString) {
+	const formData = new FormData();
+	formData.append('postdatapassedbyform', formDataString);
+	const headers = { 'Content-Type': 'multipart/form-data' };
 	try {
 		const config = {
-			method: 'get',
-			url: `${process.env.GET_FILE}?${payloadString}`
+			method: 'post',
+			url: `${process.env.GET_FILE}?${queryString}`,
+			maxContentLength: Infinity,
+			headers: {
+				...formData.getHeaders(),
+				data: formData
+			}
 		};
-
 		// console.log('URL: ', config.url);
 
 		const serverResponse = await axios.request(config);

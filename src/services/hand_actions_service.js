@@ -1,5 +1,3 @@
-const formData = require('form-data');
-
 async function buildPayload(options) {
 	const formData = new FormData();
 	formData.append('postdatapassedbyform', options.inputTitle);
@@ -36,4 +34,28 @@ async function buildQueryString(options) {
 	return string;
 }
 
-module.exports = { buildPayload, buildQueryString };
+async function buildEbuElement(data) {
+	const dataString = `${data.clubName}\n${data.clubId}\n${data.eventName}\n${
+		data.chargeCode ? data.chargeCode : '10'
+	}\n${data.awardMp ? 'Y' : 'N'}\n${data.mpType}\n${data.mpScale}\n${
+		data.directorName ? data.directorName : ''
+	}\n${data.directorEmail ? data.directorEmail : ''}\n\n${
+		data.perMatchWon ? 'y' : 'n'
+	}\n\n\n\n\n\n\n\n\n\n${data.comments ? data.comments : ''}`;
+	console.log('Data String payload: ', dataString);
+	return dataString;
+}
+
+async function buildEbuPayload(dataString) {
+	const formData = new FormData();
+
+	formData.append('postdatapassedbyform', dataString);
+	return formData;
+}
+
+module.exports = {
+	buildPayload,
+	buildQueryString,
+	buildEbuElement,
+	buildEbuPayload
+};
