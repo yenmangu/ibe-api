@@ -13,6 +13,7 @@ const cookieParser = require('cookie-parser');
 const timeLogger = require('./src/middleware/timeLogger');
 const errorHandling = require('./src/middleware/error_handling');
 const app = express();
+
 // //Init DotENV
 dotenv.config({
 	path: path.resolve(__dirname, './.env')
@@ -139,10 +140,28 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '20mb' }));
 app.post(decodeBSON);
 
+let certPath;
+let rootCA;
+let certKey;
+
+if (process.env.NODE_ENV === 'dev') {
+	certPath = path.resolve(
+		path.join(__dirname, '..', '..', '.ssh', 'server-certs', '')
+	);
+	certKey = path.resolve(path.join(certPath, 'mongodb-api-macbook.pem'));
+} else if (process.env.NODE_ENV === 'prod') {
+	certPath = path.resolve(path.join(__dirname, '..', 'certs'));
+	certKey = path.resolve(path.join(certPath, 'mongodb-api-server.pem'));
+}
+rootCA = path.resolve(path.join(certPath, 'rootCA.pem'));
+
 mongoose
 	.connect(process.env.CLOUD_DB, {
 		useNewUrlParser: true,
-		useUnifiedTopology: true
+		useUnifiedTopology: true,
+		tls: true,
+		tlsCAFile: rootCA,
+		tlsCertificateKeyFile: certKey
 	})
 	.then(() => {
 		console.log('Connected to Database');
