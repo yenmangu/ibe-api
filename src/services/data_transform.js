@@ -2,8 +2,10 @@ const timeConversion = require('./time_conversion');
 
 function extractCardinalPlayers(formData) {
 	const tempResult = {
-		sides: []
+		sides: [],
+		pairConfig: []
 	};
+
 	for (const key in formData) {
 		if (formData.hasOwnProperty(key)) {
 			if (key.startsWith('sideLabel')) {
@@ -17,13 +19,25 @@ function extractCardinalPlayers(formData) {
 								tempResult[tableKey] = [];
 							}
 							tempResult[tableKey].push(table[tableKey]);
+							if (tableKey === 'nsPairs') {
+								const pairNumber = table[tableKey];
+
+								const ns = `${table.north} & ${table.south}`;
+								// const ew = `${table[east]} & ${table[west]}`;
+								tempResult.pairConfig.push({ [pairNumber]: ns });
+							}
+							if (tableKey === 'ewPairs') {
+								const pairNumber = table[tableKey];
+
+								const ew = `${table.east} & ${table.west}`;
+								tempResult.pairConfig.push({ [pairNumber]: ew });
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-	// console.log('temp result: ', tempResult);
 	const result = {};
 	if (result.sides) {
 		result.sides = tempResult.sides;
@@ -36,6 +50,10 @@ function extractCardinalPlayers(formData) {
 	result.abbreviations = tempResult.ns_abbrev.concat(tempResult.ew_abbrev);
 	result.nsPlayers = tempResult.north.concat(tempResult.south);
 	result.ewPlayers = tempResult.east.concat(tempResult.west);
+	result.pairConfig = tempResult.pairConfig.sort(
+		(a, b) => Object.keys(a)[0] - Object.keys(b)[0]
+	);
+	console.log('Temp Result: ', tempResult);
 
 	let tempSitters = [];
 	tempSitters = tempResult.ns_sitters.concat(tempResult.ew_sitters);
@@ -61,6 +79,14 @@ function extractCardinalPlayers(formData) {
 		timeTo.push(convertedTime);
 	});
 
+	let playerList = [];
+	result.pairConfig.forEach(pair => {
+		playerList.push(Object.values(pair)[0]);
+	});
+	result.playerList = playerList;
+
+	console.log(result.playerList);
+
 	let nsArray = [];
 	let ewArray = [];
 
@@ -78,3 +104,20 @@ function extractCardinalPlayers(formData) {
 	return result;
 }
 module.exports = { extractCardinalPlayers };
+
+// const nsPairNumbering = {};
+// const ewPairNumbering = {};
+
+// if (tableKey === 'nsPairs') {
+// 	const ns = `${table.north} & ${table.south}`;
+// 	nsPairNumbering[tableKey] = ns;
+// }
+
+// if (
+// 	tableKey === 'north' ||
+// 	tableKey === 'south' ||
+// 	tableKey === 'east' ||
+// 	tableKey === 'west'
+// ) {
+// 	nsPairNumbering
+// }

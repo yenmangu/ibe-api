@@ -7,6 +7,7 @@ const { getCurrentData } = require('../services/get_current');
 const fsp = require('fs').promises;
 const fs = require('fs');
 const XmlFileService = require('../services/file_creation/xml_file_creation');
+const bwFormDataService = require('../services/bridge_webs_form');
 
 async function processObject(req, res) {
 	try {
@@ -86,6 +87,8 @@ async function coordinateDatabaseOps(req, res, next) {
 	}
 }
 
+// BRIDGEWEBS FROM
+
 async function coordinateBwFromOps(req, res, next) {
 	try {
 		if (!req.body) {
@@ -105,24 +108,21 @@ async function coordinateBwFromOps(req, res, next) {
 			const clientError = buildClientError('No form data in request', 400);
 			return res.status(clientError.status).json(clientError.message);
 		}
-		const response = await getCurrentData({ game_code: gameCode, dir_key: dirKey });
-		const xml = response.data;
-		const playerDb = await xmlController.coordinateDataExtraction(xml, 'playerdb');
-		const tempFilePath = await XmlFileService.saveXmlToFile(playerDb);
 
-		const fileContent = await fsp.readFile(tempFilePath);
-		// const fileStream = fs.createReadStream(tempFilePath)
+		console.log('Req body: ', req.body);
 
-		const blob = new Blob([fileContent]);
+		const bridgeWebsFormdata = bwFormDataService.createBridgeWebsFormdata(formData);
 
-		formData.fileContent = blob;
-		const data = { gameCode, payload: formData };
+		const data = { gameCode, dirKey, formData: bridgeWebsFormdata };
+
+		console.log('data: ', data);
 
 		const bwResponse = await sendToRemote.dbFromBW(data);
 
-		console.log('BW Response: ', bwResponse);
+		// console.log('BW RESPONSE: ', bwResponse);
 
 		let apiResponse = {};
+
 		const remoteSuccess = await parseResponse.getResponseAndError(bwResponse);
 		if (remoteSuccess.sfAttribute === 's') {
 			apiResponse.message = 'success';

@@ -12,6 +12,7 @@ const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const timeLogger = require('./src/middleware/timeLogger');
 const errorHandling = require('./src/middleware/error_handling');
+const headersMiddleware = require('./src/middleware/headerLogging');
 const app = express();
 
 // //Init DotENV
@@ -124,6 +125,12 @@ function decodeBSON(req, res, next) {
 	});
 }
 
+function captureHeaders(req, res, next) {
+	const headers = req.headers;
+	console.log(headers);
+	next();
+}
+
 function logError(err, req, res, next) {
 	if (err && err.code === 'ECONNREFUSED') {
 		console.error(
@@ -139,6 +146,8 @@ app.use(logError);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '20mb' }));
 app.post(decodeBSON);
+
+// app.use(captureHeaders);
 
 let certPath;
 let rootCA;
@@ -173,6 +182,11 @@ mongoose
 
 //Initalise Morgan and BodyParser
 app.use(morgan('dev'));
+
+// Debugging middleware
+app.use(headersMiddleware.includeUrl);
+// app.use(headersMiddleware.logHeaders);
+
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

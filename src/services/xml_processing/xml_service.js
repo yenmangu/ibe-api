@@ -214,7 +214,8 @@ const elementMapping = {
 
 const writeElementMapping = {
 	eventName: 'en',
-	players: 'pn',
+	playerList: 'pn',
+	// players: 'pn',
 	team_name: 'tn',
 	sides: 'sn',
 	boardCol: 'colstxt',
@@ -284,7 +285,11 @@ async function createCurrentGameXML(dirKey, gameCode, formData, eventName) {
 			}
 		}
 
-		return root.end({ pretty: true, allowEmpty: true });
+		const xml = root.end({ pretty: true, allowEmpty: true });
+		console.log('XML SENT TO BRIAN');
+
+		return xml;
+		// return root.end({ pretty: true, allowEmpty: true });
 	} catch (error) {
 		throw error;
 	}

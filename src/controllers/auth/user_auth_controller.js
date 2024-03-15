@@ -96,7 +96,7 @@ const login = async (req, res, next) => {
 
 		const remoteResponse = await getCurrentData(authData);
 
-		// console.log('response from victor ', remoteResponse.data);
+		console.log('response from victor ', remoteResponse.data);
 
 		if (!remoteResponse) {
 			return res.status(400).json({

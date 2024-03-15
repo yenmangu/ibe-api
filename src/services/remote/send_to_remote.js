@@ -297,21 +297,12 @@ async function getBridgeWebs(payload) {
 
 async function dbFromBW(data) {
 	try {
-		const formData = new FormData();
-		formData.append('diasel', '1');
-		formData.append('diacc', `${data.payload.accountName}`);
-		formData.append('diapass', `${data.payload.accountPass}`);
-		if (data.payload.contactInfo) {
-			formData.append('diaupfrombwincpdcb', 'on');
-		}
-		if (data.payload.excludePlayers) {
-			formData.append('diaupfrombwdelcb', 'on');
-		}
-		formData.append('upload', data.payload.fileContent, '');
+		const { gameCode, formData } = data;
+		// const headers = formData.getHeaders();
 
 		const config = {
 			method: 'post',
-			url: `${process.env.FROM_BW}?SLOT=${data.gameCode}`,
+			url: `${process.env.FROM_BW}?SLOT=${gameCode}`,
 			data: formData,
 			maxContentLength: Infinity,
 			headers: {

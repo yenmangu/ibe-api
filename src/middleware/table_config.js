@@ -22,6 +22,9 @@ exports.pocessTableConfig = async (req, res, next) => {
 			data: { eventName, tableFormData }
 		} = body;
 		const { formData, changedFields } = tableFormData;
+
+		console.log('data in processTableConfig: ', body);
+		console.log('tableFormData in processTableConfig: ', tableFormData);
 		// console.log('\n ******* Event name: ', eventName, '\n *******');
 
 		const processedXML = await xmlController.processCurrentGame(
