@@ -257,16 +257,16 @@ async function restoreGame(payload) {
 async function getEBU(queryString, formDataString) {
 	const formData = new FormData();
 	formData.append('postdatapassedbyform', formDataString);
-	const headers = { 'Content-Type': 'multipart/form-data' };
+	const headers = {
+		'Content-Type': `multipart/form-data; boundary=${formData.getBoundary}`
+	};
 	try {
 		const config = {
 			method: 'post',
 			url: `${process.env.GET_FILE}?${queryString}`,
 			maxContentLength: Infinity,
-			headers: {
-				...formData.getHeaders(),
-				data: formData
-			}
+			headers: headers,
+			data: formData
 		};
 		// console.log('URL: ', config.url);
 
@@ -350,6 +350,38 @@ async function sendPlayerDb(payload) {
 	}
 }
 
+async function uploadPbn(payload) {
+	try {
+		const { formData } = payload;
+		const config = {
+			method: 'post',
+			// url: `${process.env.PBN_URL}`,
+			url: process.env.PBN_URL,
+			data: formData,
+			maxContentLength: Infinity,
+			headers: getFormDataHeaders(formData),
+			timeout: 20000
+		};
+
+		const response = await axios.request(config);
+
+		// console.log('REMOTE RESPONSE:\n', response);
+
+		if (response) {
+			return response.status;
+		}
+	} catch (error) {
+		console.error('Error sending data: ', error);
+		console.error('Error stack: ', error.stack);
+		throw error;
+	}
+}
+
+axios.interceptors.request.use(req => {
+	console.log('Axios request object: ', JSON.stringify(req, null, 2));
+	return req;
+});
+
 module.exports = {
 	uploadCurrentConfig,
 	uploadCurrentSettings,
@@ -367,5 +399,6 @@ module.exports = {
 	getEBU,
 	getBridgeWebs,
 	dbFromBW,
-	sendPlayerDb
+	sendPlayerDb,
+	uploadPbn
 };

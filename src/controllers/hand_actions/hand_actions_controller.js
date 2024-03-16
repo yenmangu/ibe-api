@@ -187,7 +187,7 @@ async function handleUpload(req, res, next) {
 async function handleEBU(req, res, next) {
 	try {
 		const body = req.body;
-		console.log('Body: ', body);
+		console.log('Body: ', JSON.stringify(body));
 
 		const { type, gameCode, formData } = req.body;
 		if (!gameCode) {
@@ -216,7 +216,7 @@ async function handleEBU(req, res, next) {
 
 		const serverResponse = await sendToRemote.getEBU(queryString, formDataString);
 
-		// console.log('server response: ', serverResponse);
+		console.log('server response: ', serverResponse);
 
 		if (serverResponse.split('\n')[0].trim() !== 'failure') {
 			const xmlData = serverResponse;

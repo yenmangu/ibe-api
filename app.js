@@ -79,7 +79,7 @@ const corsOptions = {
 			callback(new Error('unauthorized Origin'));
 		}
 	},
-	exposedHeaders: ['X-Filename']
+	exposedHeaders: ['X-Filename', 'Filename']
 };
 
 app.use(cors(corsOptions));

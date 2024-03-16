@@ -21,4 +21,8 @@ class TextFileService {
 		}
 	}
 }
+
+class PbnFileService {
+	static async savePbnFile(file) {}
+}
 module.exports = { TextFileService };

@@ -35,14 +35,27 @@ async function buildQueryString(options) {
 }
 
 async function buildEbuElement(data) {
-	const dataString = `${data.clubName}\n${data.clubId}\n${data.eventName}\n${
+	console.log('data in build EBU Elements');
+
+	const dataString = `${data.clubName}\r\n${data.clubId}\r\n${data.eventName}\r\n${
 		data.chargeCode ? data.chargeCode : '10'
-	}\n${data.awardMp ? 'Y' : 'N'}\n${data.mpType}\n${data.mpScale}\n${
+	}\r\n${data.awardMp ? 'Y' : 'N'}\r\n${data.mpType}\r\n${data.mpScale}\r\n${
 		data.directorName ? data.directorName : ''
-	}\n${data.directorEmail ? data.directorEmail : ''}\n\n${
+	}\r\n${data.directorEmail ? data.directorEmail : ''}\r\n\r\n${
 		data.perMatchWon ? 'y' : 'n'
-	}\n\n\n\n\n\n\n\n\n\n${data.comments ? data.comments : ''}`;
-	console.log('Data String payload: ', dataString);
+	}\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n${
+		data.comments ? data.comments : ''
+	}\r\n`;
+
+	// const dataString = `${data.clubName}\n${data.clubId}\n${data.eventName}\n${
+	// 	data.chargeCode ? data.chargeCode : '10'
+	// }\n${data.awardMp ? 'Y' : 'N'}\n${data.mpType}\n${data.mpScale}\n${
+	// 	data.directorName ? data.directorName : ''
+	// }\n${data.directorEmail ? data.directorEmail : ''}\n\n${
+	// 	data.perMatchWon ? 'y' : 'n'
+	// }\n\n\n\n\n\n\n\n\n\n\n${data.comments ? data.comments : ''}\n`;
+	console.log('Data String payload: \n', dataString);
+	// dataString.trim();
 	return dataString;
 }
 

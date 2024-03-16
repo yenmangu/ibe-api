@@ -126,9 +126,40 @@ async function handleMultipleFileUpload(req, res, next) {
 	next();
 }
 
+async function handlePbnUpload(req, res, next) {
+	try {
+		console.log('Pbn file upload invoked');
+		await new Promise((resolve, reject) => {
+			singleUpload(req, res, async err => {
+				if (err instanceof multer.MulterError) {
+					return reject(err);
+				} else if (err) {
+					return reject(err);
+				}
+				if (req.file) {
+					console.log(req.file.originalname);
+					const file = req.file.originalname;
+					const extension = file.substring(file.lastIndexOf('.'));
+					if (extension !== '.pbn') {
+						reject(new Error('File not .pbn format'));
+					} else {
+						resolve();
+					}
+				} else {
+					reject(new Error('No file uploaded'));
+				}
+			});
+		});
+	} catch (error) {
+		next(error);
+	}
+	next();
+}
+
 module.exports = {
 	handleSingleFileUpload,
 	handleMultipleFileUpload,
 	handleBBO,
-	handleUSEBIO
+	handleUSEBIO,
+	handlePbnUpload
 };
