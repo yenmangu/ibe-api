@@ -45,7 +45,7 @@ async function buildEbuElement(data) {
 		data.perMatchWon ? 'y' : 'n'
 	}\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n${
 		data.comments ? data.comments : ''
-	}\r\n`;
+	}`;
 
 	// const dataString = `${data.clubName}\n${data.clubId}\n${data.eventName}\n${
 	// 	data.chargeCode ? data.chargeCode : '10'

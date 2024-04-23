@@ -1,6 +1,8 @@
 const timeConversion = require('./time_conversion');
 
-function extractCardinalPlayers(formData) {
+function extractCardinalPlayers(formData, teams = false) {
+	console.log('Teams in extract cardinal players? :', teams);
+
 	const tempResult = {
 		sides: [],
 		pairConfig: []
@@ -42,29 +44,37 @@ function extractCardinalPlayers(formData) {
 	if (result.sides) {
 		result.sides = tempResult.sides;
 	}
-	result.venues = tempResult.venues;
-	result.strat = tempResult.ns_stratification.concat(tempResult.ew_stratification);
-	result.adjustments = tempResult.ns_adjustments.concat(tempResult.ew_adjustments);
-	result.handicaps = tempResult.ns_handicaps.concat(tempResult.ew_handicaps);
-	result.labels = tempResult.ns_labels.concat(tempResult.ew_labels);
-	result.abbreviations = tempResult.ns_abbrev.concat(tempResult.ew_abbrev);
-	result.nsPlayers = tempResult.north.concat(tempResult.south);
-	result.ewPlayers = tempResult.east.concat(tempResult.west);
-	result.pairConfig = tempResult.pairConfig.sort(
-		(a, b) => Object.keys(a)[0] - Object.keys(b)[0]
-	);
+	// console.log('Temp result: ', tempResult);
+	if (teams) {
+		result.strat = tempResult.ew_stratification;
+		result.labels = tempResult.ew_labels;
+		result.abbreviations = tempResult.ew_abbrev;
+		result.handicaps = tempResult.ew_handicaps;
+		let tempSitters = [];
+		tempSitters = tempResult.ew_sitters;
+		result.sitters = tempSitters.map(value => (value === true ? 'y' : ''));
+		console.log('result in teams conditional: ', result);
+	} else {
+		result.venues = tempResult.venues;
+		result.strat = tempResult.ns_stratification.concat(
+			tempResult.ew_stratification
+		);
+		result.adjustments = tempResult.ns_adjustments.concat(
+			tempResult.ew_adjustments
+		);
+		result.handicaps = tempResult.ns_handicaps.concat(tempResult.ew_handicaps);
+		result.labels = tempResult.ns_labels.concat(tempResult.ew_labels);
+		result.abbreviations = tempResult.ns_abbrev.concat(tempResult.ew_abbrev);
+		result.nsPlayers = tempResult.north.concat(tempResult.south);
+		result.ewPlayers = tempResult.east.concat(tempResult.west);
+		result.pairConfig = tempResult.pairConfig.sort(
+			(a, b) => Object.keys(a)[0] - Object.keys(b)[0]
+		);
+		let tempSitters = [];
+		tempSitters = tempResult.ns_sitters.concat(tempResult.ew_sitters);
+		result.sitters = tempSitters.map(value => (value === true ? 'y' : ''));
+	}
 	console.log('Temp Result: ', tempResult);
-
-	let tempSitters = [];
-	tempSitters = tempResult.ns_sitters.concat(tempResult.ew_sitters);
-	result.sitters = tempSitters.map(value => (value === true ? 'y' : ''));
-
-	console.log('Sitters: ', result.sitters);
-
-	// Object.keys(tempSitters).forEach(key => {
-	// 	sitters[key] = tempSitters[key] ? 'y' : '';
-	// });
-	// result.sitters = sitters;
 
 	const tableTotal = tempResult.north.length;
 	let timeFrom = [];
@@ -79,14 +89,6 @@ function extractCardinalPlayers(formData) {
 		timeTo.push(convertedTime);
 	});
 
-	let playerList = [];
-	result.pairConfig.forEach(pair => {
-		playerList.push(Object.values(pair)[0]);
-	});
-	result.playerList = playerList;
-
-	console.log(result.playerList);
-
 	let nsArray = [];
 	let ewArray = [];
 
@@ -95,7 +97,22 @@ function extractCardinalPlayers(formData) {
 		ewArray.push(`${tempResult.east[i]} & ${tempResult.west[i]}`);
 		timesArray.push(`${timeFrom[i]} - ${timeTo[i]}`);
 	}
-	result.players = nsArray.concat(ewArray);
+	let playerList = [];
+	const players = nsArray.concat(ewArray);
+	result.players = players;
+	if (!teams) {
+		result.pairConfig.forEach(pair => {
+			playerList.push(Object.values(pair)[0]);
+		});
+	} else {
+		players.forEach(playerPair => {
+			playerList.push(playerPair);
+		});
+	}
+	result.playerList = playerList;
+
+	console.log(result.playerList);
+
 	result.times = timesArray;
 	if (result.team_name) {
 		result.team_name = tempResult.team_name;

@@ -30,7 +30,8 @@ const originArray = [
 	process.env.ORIGIN,
 	localHost,
 	companionOrigin,
-	devCompanionOrigin
+	devCompanionOrigin,
+	'http://192.168.68.100:4200'
 ];
 
 console.log(`allowedOrigin/s are: ${originArray}`);
@@ -149,7 +150,7 @@ app.post(decodeBSON);
 
 // app.use(captureHeaders);
 
-let certPath;
+let certPath = '';
 let rootCA;
 let certKey;
 
@@ -164,10 +165,12 @@ if (process.env.NODE_ENV === 'dev') {
 }
 rootCA = path.resolve(path.join(certPath, 'rootCA.pem'));
 
+const cloudDb = process.env.CLOUD_DB || '';
+
 mongoose
-	.connect(process.env.CLOUD_DB, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true,
+	.connect(cloudDb, {
+		// useNewUrlParser: true,
+		// useUnifiedTopology: true,
 		tls: true,
 		tlsCAFile: rootCA,
 		tlsCertificateKeyFile: certKey

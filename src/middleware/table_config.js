@@ -21,10 +21,11 @@ exports.pocessTableConfig = async (req, res, next) => {
 			dateFormData,
 			data: { eventName, tableFormData }
 		} = body;
-		const { formData, changedFields } = tableFormData;
+		const { formData, changedFields, teams } = tableFormData;
+		console.log('teams: ', teams);
 
-		console.log('data in processTableConfig: ', body);
-		console.log('tableFormData in processTableConfig: ', tableFormData);
+		// console.log('data in processTableConfig: ', body);
+		// console.log('tableFormData in processTableConfig: ', tableFormData);
 		// console.log('\n ******* Event name: ', eventName, '\n *******');
 
 		const processedXML = await xmlController.processCurrentGame(
@@ -33,7 +34,8 @@ exports.pocessTableConfig = async (req, res, next) => {
 			formData,
 			changedFields,
 			dateFormData,
-			eventName
+			eventName,
+			teams
 		);
 
 		console.log('processed XML: ', processedXML);
@@ -73,6 +75,7 @@ exports.pocessTableConfig = async (req, res, next) => {
 		if (!remoteSuccess) {
 			const remoteError = new Error('Error in response from remote');
 			remoteError.status = 500;
+			remoteError.error = err;
 			throw remoteError;
 		}
 	} catch (error) {

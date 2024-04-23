@@ -221,7 +221,7 @@ const writeElementMapping = {
 	boardCol: 'colstxt',
 	sitters: 'sit',
 	handicaps: 'handi',
-	strat: 'strattxt',
+	strat: 'strat',
 	venues: 'tbln',
 	abbreviations: 'nkstxt',
 	labels: 'tagstxt',
@@ -234,7 +234,7 @@ async function createCurrentGameXML(dirKey, gameCode, formData, eventName) {
 	try {
 		// xml logic
 		console.log('xml service invoked');
-		// console.log('formData in xmlService: ', formData)
+		console.log('formData in xmlService: ', formData);
 
 		for (const key in formData) {
 			if (Array.isArray(formData[key])) {
@@ -271,9 +271,11 @@ async function createCurrentGameXML(dirKey, gameCode, formData, eventName) {
 					const filteredData = formData[key].filter(value => value !== null);
 					if (filteredData.length > 0) {
 						const dataWithNewLines = filteredData.join('\n');
+						console.log('Data with new lines: ', dataWithNewLines);
+
 						element.dat(`${dataWithNewLines}`);
 					} else {
-						element.txt('\n');
+						element.dat('\n');
 					}
 				} else {
 					if (formData[key] !== null) {

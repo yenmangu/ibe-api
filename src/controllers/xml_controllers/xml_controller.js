@@ -108,16 +108,20 @@ async function processCurrentGame(
 	formData,
 	changedFields,
 	dateFormData,
-	eventName
+	eventName,
+	teams = false
 ) {
 	try {
 		// console.log('xml controller invoked');
-		console.log('all form data in xml controller: ', formData, '\n');
+		// console.log('all form data in xml controller: ', formData, '\n');
+		console.log('Teams? :', teams);
 
 		// console.log('formData in xml controller: ', formData);
 
-		const currentMatchArrays =
-			player_cardinal_extraction.extractCardinalPlayers(formData);
+		const currentMatchArrays = player_cardinal_extraction.extractCardinalPlayers(
+			formData,
+			teams
+		);
 		console.log('Current Match Arrays:  ', currentMatchArrays);
 
 		const currentGameXML = await xmlService.createCurrentGameXML(

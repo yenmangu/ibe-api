@@ -1,6 +1,5 @@
 const axios = require('axios');
 const serverResponse = require('./remote_response');
-const { query } = require('express');
 const FormData = require('form-data');
 
 function getFormDataHeaders(formData) {
@@ -376,11 +375,12 @@ async function uploadPbn(payload) {
 		throw error;
 	}
 }
+// Debug - Uncomment below to log the outgoing axios request
 
-axios.interceptors.request.use(req => {
-	console.log('Axios request object: ', JSON.stringify(req, null, 2));
-	return req;
-});
+// axios.interceptors.request.use(req => {
+// 	console.log('Axios request object: ', JSON.stringify(req, null, 2));
+// 	return req;
+// });
 
 module.exports = {
 	uploadCurrentConfig,

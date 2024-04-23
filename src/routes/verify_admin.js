@@ -4,7 +4,10 @@ const router = express.Router();
 const adminAuthorised = [
 	process.env.CLIENT_GC,
 	process.env.TEAM_GC,
-	process.env.PAIR_GC
+	process.env.PAIR_GC,
+	process.env.NIC_EIGHT,
+	process.env.NIC_NINE,
+	process.env.PONTY
 ];
 
 router.get('/admin-verify', async (req, res, next) => {

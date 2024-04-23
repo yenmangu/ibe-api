@@ -51,19 +51,16 @@ async function handlePbnLinConversion(req, res, next) {
 
 		if (!file) {
 			throw new Error('No file in body');
-		} else {
-			console.log('file', file);
 		}
+
+		console.log('File detected: ', file);
+
 		const filename = file.originalname;
-
 		const formData = new FormData();
-
 		const blob = new Blob([file.buffer], { type: file.mimetype });
-
 		formData.append('filename', blob, filename);
 
 		const headers = { 'Content-Type': 'multipart/form-data' };
-
 		const payload = { formData, headers };
 
 		const remoteResponse = await sendToRemote.uploadPbn(payload);

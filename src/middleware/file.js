@@ -140,7 +140,9 @@ async function handlePbnUpload(req, res, next) {
 					console.log(req.file.originalname);
 					const file = req.file.originalname;
 					const extension = file.substring(file.lastIndexOf('.'));
-					if (extension !== '.pbn') {
+					console.log('Extension of file: ', extension);
+
+					if (extension !== '.pbn' && extension !== '.PBN') {
 						reject(new Error('File not .pbn format'));
 					} else {
 						resolve();
