@@ -1,6 +1,6 @@
 const { devMailService } = require('./mail_service');
 
-class customError extends Error {
+class CustomError extends Error {
 	constructor(message, errCode, customData) {
 		super(message);
 		this.name = this.constructor.name;
@@ -11,7 +11,7 @@ class customError extends Error {
 			name: `${this.name}`,
 			code: `${this.errCode}`,
 			message: `${this.message}`,
-			stack: `${this.stack.replace(/\n/g, '</br>')}`,
+			stack: this.stack ? `${this.stack.replace(/\n/g, '</br>')}` : '',
 			customData: customData || null
 		};
 	}
@@ -22,9 +22,8 @@ class customError extends Error {
 		console.time('sendErrorMail');
 		// const emailBody = this.errorDetails;
 
-		const result = await devMailService.sendMail(emailBody);
 		const emailBody = JSON.stringify(this.errorDetails, undefined, 2);
-
+		const result = await devMailService.sendMail(emailBody);
 
 		console.log('Error email sent with details:\n', emailBody);
 		// Timer end
@@ -34,4 +33,4 @@ class customError extends Error {
 		return result;
 	}
 }
-module.exports = customError;
+module.exports = CustomError;

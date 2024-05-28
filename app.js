@@ -146,7 +146,7 @@ app.use(timeLogger);
 app.use(logError);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '20mb' }));
-app.post(decodeBSON);
+app.post('*', decodeBSON);
 
 // app.use(captureHeaders);
 

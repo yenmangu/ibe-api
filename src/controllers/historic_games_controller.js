@@ -1,34 +1,58 @@
 const sendToRemote = require('../services/remote/send_to_remote');
+const ClientError = require('../services/custom_error');
 
 function returnError(message, status) {
-	const clientError = new Error();
-	clientError.message = message || 'Bad Request';
-	clientError.status = status || 400;
-	return clientError;
+	return new ClientError(message || 'Bad Request', status || 400);
 }
 
-exports.historicGamesController = async (req, res, next) => {
+exports.validateRequest = async (req, res, next) => {
+	try {
+		const body = req.body;
+		const { gameCode, dirKey, zipName } = body;
+
+		if (!body) {
+			const clientError = returnError('No body in request', 400);
+			return res.status(clientError.status).json(clientError.message);
+		}
+
+		if (!gameCode || !dirKey) {
+			const clientError = returnError('No authentication provided', 401);
+			return res.status(clientError.status).json(clientError.message);
+		}
+
+		if (!zipName) {
+			const clientError = returnError('No ZIPNAME provided', 400);
+			return res.status(clientError.status).json(clientError.message);
+		}
+
+		next();
+	} catch (error) {
+		next(error);
+	}
+};
+
+exports.restoreGame = async (req, res, next) => {
 	try {
 		console.log('restore historic games');
 
 		const body = req.body;
-		let clientError;
-		if (!body) {
-			clientError = returnError('No body in request', 400);
-			return res.status(clientError.status).json(clientError.message);
-		}
 
 		const { gameCode, dirKey, zipName } = body;
 
-		if (!gameCode || !dirKey) {
-			clientError = returnError('No authentication provided', 401);
-			return res.status(clientError.status).json(clientError.message``);
-		}
+		// if (!body) {
+		// 	const clientError = returnError('No body in request', 400);
+		// 	return res.status(clientError.status).json(clientError.message);
+		// }
 
-		if (!zipName) {
-			clientError = returnError('No ZIPNAME provided', 400);
-			return res.status(clientError.status).json(clientError.message);
-		}
+		// if (!gameCode || !dirKey) {
+		// 	const clientError = returnError('No authentication provided', 401);
+		// 	return res.status(clientError.status).json(clientError.message);
+		// }
+
+		// if (!zipName) {
+		// 	const clientError = returnError('No ZIPNAME provided', 400);
+		// 	return res.status(clientError.status).json(clientError.message);
+		// }
 
 		const payload = `${gameCode}\n${dirKey}\n${zipName}`;
 
@@ -62,6 +86,15 @@ exports.historicGamesController = async (req, res, next) => {
 		res.status(200).json({ result });
 	} catch (error) {
 		console.error('Error in historic games controller');
+		next(error);
+	}
+};
+
+exports.deleteGame = async (req, res, next) => {
+	try {
+		console.log('Reached deleteGame.');
+		res.status(200).json({ status: 'success', data: req.body });
+	} catch (error) {
 		next(error);
 	}
 };
