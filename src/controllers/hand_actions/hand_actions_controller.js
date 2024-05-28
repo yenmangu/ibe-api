@@ -195,7 +195,7 @@ async function handleEBU(req, res, next) {
 			return res.status(clientError.status).json(clientError.message);
 		}
 		if (!formData) {
-			const clienError = buildClientError('No form data in request', 400);
+			const clientError = buildClientError('No form data in request', 400);
 			return res.status(clientError.status).json(clientError.message);
 		}
 		const options = {

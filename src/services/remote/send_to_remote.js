@@ -258,10 +258,12 @@ async function restoreGame(payload) {
 	}
 }
 
-async function deleteGame(data) {
+async function deleteGame(xmlRequest) {
+	console.log('Reached send to remote');
 	try {
 		const delGameUrl = process.env.DELETE_GAME;
-		const xmlRequest = writeDeleteRequest(data);
+		// const xmlRequest = writeDeleteRequest(data);
+		// xmlRequest.toString();
 		const config = {
 			method: 'post',
 			url: delGameUrl,
@@ -270,11 +272,7 @@ async function deleteGame(data) {
 			data: xmlRequest
 		};
 		const response = await axios.request(config);
-		if (response) {
-			console.log(response.data);
-
-			return response.data;
-		}
+		return response;
 	} catch (error) {
 		throw error;
 	}
