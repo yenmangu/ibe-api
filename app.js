@@ -146,7 +146,7 @@ app.use(timeLogger);
 app.use(logError);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '20mb' }));
-app.post('*', decodeBSON);
+// app.post('*', decodeBSON);
 
 // app.use(captureHeaders);
 
@@ -221,6 +221,19 @@ app.use('/ibescore/hand-actions', handActionsRoute);
 app.use('/ibescore/spectate', spectateRoute);
 app.use('/ibescore/admin-tools', adminToolsRoute);
 app.use('/ibescore/verification', adminVerifyRoute);
+
+app.post('/ibescore/axios-test', async (req, res, next) => {
+	try {
+		const body = req.body;
+		if (body) {
+			res.status(200).json({ status: 'SUCCESS', data: req });
+		} else {
+			throw new Error('No Body in Request');
+		}
+	} catch (error) {
+		res.status(500).json({ status: 'ERROR', error });
+	}
+});
 
 //Assign Angular Route
 

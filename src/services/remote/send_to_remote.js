@@ -1,10 +1,25 @@
-const axios = require('axios');
+const axios = require('axios').default;
+
+const writeDeleteRequest = require('../xml_creation/historic_games');
 const serverResponse = require('./remote_response');
 const FormData = require('form-data');
+const { env } = process;
+
+const currentGame = env.CURRENT_GAME || '';
+const settings = env.SETTINGS || '';
+const redate = env.REDATE || '';
+const lock = env.LOCK || '';
+const finalise = env.FINALISE || '';
+const merge = env.MERGE || '';
+const purge = env.PURGE || '';
+const writeDB = env.WRITE_DB || '';
 
 function getFormDataHeaders(formData) {
 	return { 'Content-Type': `multipart/form-data; boundary=${formData._boundary}` };
 }
+
+const formHeaders = { 'Content-Type': 'multipart/form-data' };
+const textHeaders = { 'Content-Type': 'text/plain' };
 
 async function uploadCurrentConfig(data) {
 	try {
@@ -12,12 +27,12 @@ async function uploadCurrentConfig(data) {
 			const serverError = new Error(
 				'Internal Server Error. No data in uploadCurrentConfig'
 			);
-			serverError.status = 500;
+
 			throw serverError;
 		}
 
 		const headers = { 'Content-Type': 'text/plain' };
-		const response = await axios.post(process.env.CURRENT_GAME, data, {
+		const response = await axios.post(currentGame, data, {
 			headers: headers
 		});
 		// console.log('Remote response: ', response);
@@ -33,12 +48,11 @@ async function uploadCurrentSettings(data) {
 			const serverError = new Error(
 				'Internal Server Error. No data in uploadCurrentConfig'
 			);
-			serverError.status = 500;
 			throw serverError;
 		}
 
 		const headers = { 'Content-Type': 'text/plain' };
-		const response = await axios.post(process.env.SETTINGS, data, {
+		const response = await axios.post(settings, data, {
 			headers: headers
 		});
 		console.log('Remote response: ', response.data);
@@ -51,7 +65,7 @@ async function uploadCurrentSettings(data) {
 async function sendRedate(data) {
 	try {
 		const headers = { 'Content-Type': 'application/xml' };
-		const response = await axios.post(process.env.REDATE, data, { headers });
+		const response = await axios.post(redate, data, { headers });
 		return response;
 	} catch (error) {
 		throw error``;
@@ -61,7 +75,7 @@ async function sendLockRequest(data) {
 	try {
 		console.log('data in sendLock(): ', data);
 		const headers = { 'Content-Type': 'text/plain' };
-		const response = await axios.post(process.env.LOCK, data, { headers });
+		const response = await axios.post(lock, data, { headers });
 		return response;
 	} catch (error) {
 		throw error;
@@ -70,7 +84,7 @@ async function sendLockRequest(data) {
 async function sendFinaliseRequest(data) {
 	try {
 		const headers = { 'Content-Type': 'text/plain' };
-		const response = await axios.post(process.env.FINALISE, data, { headers });
+		const response = await axios.post(finalise, data, { headers });
 		return response;
 	} catch (error) {
 		throw error;
@@ -80,7 +94,7 @@ async function sendFinaliseRequest(data) {
 async function sendSimultaneous(data) {
 	try {
 		const headers = { 'Content-Type': 'application/xml' };
-		const response = await axios.post(process.env.MERGE, data, { headers });
+		const response = await axios.post(merge, data, { headers });
 		if (response) {
 			return response;
 		}
@@ -92,7 +106,7 @@ async function sendSimultaneous(data) {
 async function purgeRequest(data) {
 	try {
 		const headers = { 'Content-Type': 'text/plain' };
-		const response = await axios.post(process.env.PURGE, data, { headers });
+		const response = await axios.post(purge, data, { headers });
 		if (response) {
 			return response;
 		}
@@ -105,7 +119,7 @@ async function purgeRequest(data) {
 async function writeDatabase(data) {
 	try {
 		const headers = { 'Content-Type': 'application/xml' };
-		const response = await axios.post(process.env.WRITE_DB, data, { headers });
+		const response = await axios.post(writeDB, data, { headers });
 		if (response) {
 			return response;
 		}
@@ -117,59 +131,50 @@ async function writeDatabase(data) {
 async function getFile(queryString, options) {
 	try {
 		console.log('in sendToRemote: ', options.TYPE);
-
 		console.log('options in send to remote.getFile: ', options);
-
 		let formData = new FormData();
 		let payload = '';
 
+		const axiosInstance = axios.create({
+			method: 'post',
+			maxBodyLength: Infinity,
+			baseURL: `${process.env.GET_FILE}`
+		});
+
+		let config = { url: `?${queryString}` };
 		if (options.TYPE === 'movement') {
 			formData.append('postdatapassedbyform', options.inputTitle);
+
+			config = {
+				...config,
+				data: formData,
+				headers: formHeaders,
+				responseType: 'arraybuffer'
+			};
 		} else if (options.TYPE === 'HTMLNEW') {
-			// formData.append(
-			// 	'postdatapassedbyform',
-			// 	`${options.eventName}\n${options.directorName}\n${
-			// 		options.comments ? options.comments : ''
-			// 	}`
-			// );
 			payload = `${options.eventName}\n${options.directorName}\n${
 				options.comments ? options.comments : ''
 			}`;
-		}
-		// Common Headers and Config
-		let headers = { 'Content-Type': 'multipart/formdata' };
-
-		let config = {
-			method: 'post',
-			maxBodyLength: Infinity,
-			url: `${process.env.GET_FILE}?${queryString}`,
-			headers: headers,
-			data: formData
-		};
-		if (options.TYPE === 'movement') {
-			config.responseType = 'arraybuffer';
-			const response = await axios.request(config);
-			return response.data;
-		}
-		if (options.TYPE === 'HTMLNEW') {
-			config.data = payload;
-			config.headers = { 'Content-Type': 'text/plain' };
-
 			if (options.fileType === 'pdf') {
 				config.responseType = 'arraybuffer';
 			}
 
 			if (options.fileType === 'html') {
 			}
-
-			const response = await axios.request(config);
-			return response.data;
+			config = {
+				...config,
+				data: payload,
+				headers: textHeaders
+			};
 		}
-		// console.log('queryString before sending: ', queryString);
-		// const response = await axios.request(config);
-		// console.log('direct response from victor: ', response);
+
+		console.log('Final Config: ', config);
+
+		const response = await axiosInstance.request(config);
+		return response.data;
 	} catch (error) {
 		console.error('error sending axios: ', error);
+		throw error;
 	}
 }
 
@@ -248,6 +253,28 @@ async function restoreGame(payload) {
 		const response = await axios.request(config);
 
 		return response.data;
+	} catch (error) {
+		throw error;
+	}
+}
+
+async function deleteGame(data) {
+	try {
+		const delGameUrl = process.env.DELETE_GAME;
+		const xmlRequest = writeDeleteRequest(data);
+		const config = {
+			method: 'post',
+			url: delGameUrl,
+			maxContentLength: Infinity,
+			headers: textHeaders,
+			data: xmlRequest
+		};
+		const response = await axios.request(config);
+		if (response) {
+			console.log(response.data);
+
+			return response.data;
+		}
 	} catch (error) {
 		throw error;
 	}
@@ -393,6 +420,7 @@ module.exports = {
 	writeDatabase,
 	getFile,
 	deleteRequest,
+	deleteGame,
 	downloadCurrent,
 	uploadCurrentSingle,
 	restoreGame,

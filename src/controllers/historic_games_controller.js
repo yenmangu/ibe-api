@@ -7,6 +7,7 @@ function returnError(message, status) {
 
 exports.validateRequest = async (req, res, next) => {
 	try {
+		console.log('Reached validate request');
 		const body = req.body;
 		const { gameCode, dirKey, zipName } = body;
 
@@ -93,7 +94,36 @@ exports.restoreGame = async (req, res, next) => {
 exports.deleteGame = async (req, res, next) => {
 	try {
 		console.log('Reached deleteGame.');
-		res.status(200).json({ status: 'success', data: req.body });
+		const body = req.body;
+
+		const { gameCode, dirKey, zipName } = body;
+
+		const response = await sendToRemote.deleteGame({ gameCode, dirKey, zipName });
+
+		let result = {
+			success: false
+		};
+
+		if (response.trim() === 'success') {
+			result.success = true;
+		} else {
+			const responseLines = response.split('\n');
+			if (responseLines[0].trim() === 'failure') {
+				if (responseLines[1]) {
+					result.success = false;
+					result.errorCode = responseLines[1].trim();
+				} else {
+					return res.status(500).json({
+						message: 'Internal Server Error - Invalid response from remote',
+						result,
+						remote: response
+					});
+				}
+				return res.status(500).json({ message: 'Internal Server Error', result });
+			}
+			console.log('result: ', result);
+		}
+		res.status(200).json({ result });
 	} catch (error) {
 		next(error);
 	}
