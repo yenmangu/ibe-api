@@ -7,7 +7,8 @@ const adminAuthorised = [
 	process.env.PAIR_GC,
 	process.env.NIC_EIGHT,
 	process.env.NIC_NINE,
-	process.env.PONTY
+	process.env.PONTY,
+	process.env.NICOLEC
 ];
 
 router.get('/admin-verify', async (req, res, next) => {

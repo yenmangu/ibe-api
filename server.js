@@ -57,11 +57,13 @@ const onListening = () => {
 const port = normalizePort(process.env.PORT || '3030');
 if (process.env.NODE_ENV === 'dev') {
 	console.log('NODE_ENV=DEV');
-	console.log('PORT ' + port);
+	// console.log('PORT ' + port);
 	if (process.env.ALLOW_LOCAL_STORAGE) {
 		console.log('ALLOWING LOCAL STORAGE AUTH');
 		console.log('PORT ' + port);
 	}
+} else {
+	console.log('PORT ' + port);
 }
 app.set('port', port);
 

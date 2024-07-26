@@ -1,4 +1,5 @@
 const { parseString } = require('xml2js');
+const { CustomError, buildCustomError } = require('../error/Error');
 
 // Used in the send_to_remote send_files
 
@@ -65,10 +66,10 @@ function parseError(errorString) {
 }
 
 const succesCheck = response => {
-	let succes = false;
+	let success = false;
 	const result = response[0].trim().toLowerCase();
 	if (result !== 'success') {
-		const serverError = new Error('Error from remote server');
+		const serverError = new CustomError('CustomError from remote server');
 		serverError.status = 500;
 		throw serverError;
 	} else {
@@ -81,10 +82,10 @@ function findErrorTag(xmlData) {
 	return new Promise((resolve, reject) => {
 		parseString(xmlData, (err, results) => {
 			if (err) {
-				console.error('Error parsing XML');
+				console.error('CustomError parsing XML');
 				reject(err);
 			} else {
-				const errorTagContents = result.error;
+				const errorTagContents = results.error;
 				resolve(errorTagContents);
 			}
 		});
@@ -102,7 +103,7 @@ async function determineSuccess(xmlData) {
 		}
 		return { success: true };
 	} catch (error) {
-		throw new Error('Error determining success');
+		throw new CustomError('CustomError determining success');
 	}
 }
 
@@ -152,7 +153,7 @@ function getResponse(parsedString, tag) {
 		}
 	} else {
 		console.log(`No ${XMLResponse} or sf in parsed XML`);
-		const serverError = new Error('sf in XML not found');
+		const serverError = new CustomError('sf in XML not found');
 		serverError.status = 500;
 		throw serverError;
 	}

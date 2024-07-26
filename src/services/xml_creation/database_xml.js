@@ -27,7 +27,7 @@ async function writeEmpty() {
 
 async function writeDbFromCsv(importData) {
 	try {
-		console.log('Data in writeDbFromCsv: ', importData);
+		// console.log('Data in writeDbFromCsv: ', importData);
 
 		const headers = importData[0];
 
@@ -58,9 +58,9 @@ async function writeDbFromCsv(importData) {
 				const columnIndex = headerMap[formattedHeader];
 
 				const value = columnIndex !== undefined ? row[columnIndex] : '';
-				console.log('Row data: ', row);
-				console.log('EBU value: ', row[headerMap['ebu']]);
-				console.log('BBO value: ', row[headerMap['bbo']]);
+				// console.log('Row data: ', row);
+				// console.log('EBU value: ', row[headerMap['ebu']]);
+				// console.log('BBO value: ', row[headerMap['bbo']]);
 
 				if (value) {
 					const idArray = [];
@@ -100,10 +100,11 @@ async function writeDbFromCsv(importData) {
 
 		const xmlString = root.end({ prettyPrint: true }).trim();
 		// xmlString = xmlString.trim();
-		console.log('DATA WRITTEN. returning XML string: ', xmlString);
+		// console.log('DATA WRITTEN. returning XML string: ', xmlString);
 		// return;
 		return xmlString;
 	} catch (error) {
+		console.error('Error writing XML: ', error);
 		throw error;
 	}
 }

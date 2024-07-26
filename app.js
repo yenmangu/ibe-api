@@ -1,7 +1,6 @@
-//Import Packages
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
+const fs = require('fs').promises;
 const { exec } = require('child_process');
 const { BSON } = require('bson');
 const path = require('path');
@@ -20,55 +19,30 @@ dotenv.config({
 	path: path.resolve(__dirname, './.env')
 });
 
+// console.log(process.env);
+
+console.log('Node ENV: ', process.env.NODE_ENV);
+
 // CORS and PORT retrieval
 const allowedOrigin = process.env.ORIGIN;
 const localHost = 'http://localhost:4200';
 const companionOrigin = process.env.COMPANION_ORIGIN;
 const devCompanionOrigin = process.env.DEV_COMPANION_ORIGIN;
-
+const regOrigin = process.env.REGISTRATION_ORIGIN;
+const wwwHtppsCompanion = process.env.COMPANION_HTTPS_WWW;
+const wwwCompanion = process.env.COMPANION_WWW;
 const originArray = [
 	process.env.ORIGIN,
 	localHost,
 	companionOrigin,
 	devCompanionOrigin,
-	'http://192.168.68.100:4200'
+	'http://192.168.68.100:4200',
+	regOrigin,
+	wwwCompanion,
+	wwwHtppsCompanion
 ];
 
 console.log(`allowedOrigin/s are: ${originArray}`);
-
-// app.use((req, res, next) => {
-// 	const actualOrigin = req.headers.origin;
-// 	if (originArray.includes(actualOrigin)) {
-// 		res.setHeader('Access-Control-Allow-Origin', actualOrigin);
-// 	} else {
-// 		return res.status(403).send('Unauthorized Origin');
-// 	}
-// 	res.setHeader(
-// 		'Access-Control-Allow-Methods',
-// 		'GET,POST,PATCH,DELETE,OPTIONS,PUT'
-// 	);
-// 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-// 	if (req.method === 'OPTIONS') {
-// 		res.sendStatus(200);
-// 	} else {
-// 		next();
-// 	}
-// });
-
-// app.use((req, res, next) => {
-// 	res.setHeader('Access-Control-Allow-Origin', '*');
-
-// 	res.setHeader(
-// 		'Access-Control-Allow-Methods',
-// 		'GET,POST,PATCH,DELETE,OPTIONS,PUT'
-// 	);
-// 	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-// 	if (req.method === 'OPTIONS') {
-// 		res.sendStatus(200);
-// 	} else {
-// 		next();
-// 	}
-// });
 
 const corsOptions = {
 	optionsSuccessStatus: 200,
@@ -120,7 +94,7 @@ function decodeBSON(req, res, next) {
 	});
 	req.on('end', () => {
 		const decodedData = BSON.deserialize(Buffer.from(rawData, 'binary'));
-		fs.appendFileSync('./data/data.json', JSON.stringify(decodedData));
+		fs.appendFile('./data/data.json', JSON.stringify(decodedData));
 		req.decodedData = decodedData;
 		next();
 	});
@@ -151,32 +125,55 @@ app.use(bodyParser.json({ limit: '20mb' }));
 // app.use(captureHeaders);
 
 let certPath = '';
-let rootCA;
-let certKey;
+let caPath = '';
+let keyPath = '';
 
-if (process.env.NODE_ENV === 'dev') {
-	certPath = path.resolve(
-		path.join(__dirname, '..', '..', '.ssh', 'server-certs', '')
-	);
-	certKey = path.resolve(path.join(certPath, 'mongodb-api-macbook.pem'));
-} else if (process.env.NODE_ENV === 'prod') {
-	certPath = path.resolve(path.join(__dirname, '..', 'certs'));
-	certKey = path.resolve(path.join(certPath, 'mongodb-api-server.pem'));
+const nodeEnv = process.env.NODE_ENV;
+
+if (nodeEnv === 'prod') {
+	// certPath = path.resolve(path.join(__dirname, '..', '..', 'certs'));
+	// certKey = path.resolve(path.join(certPath, 'mongodb.pem'));
+	// rootCA = path.resolve(path.join(certPath, 'ca.pem'));
+	keyPath = process.env.DEV_KEY || '';
+	caPath = process.env.DEV_CA || '';
+} else {
+	// certPath = path.resolve(
+	// 	path.join(__dirname, '..', '..', '.ssh', 'server-certs', '')
+	// );
+	// certKey = path.resolve(path.join(certPath, 'mongodb.pem'));
+	// rootCA = path.resolve(path.join(certPath, 'ca.pem'));
+	keyPath = process.env.DEV_KEY || '';
+	caPath = process.env.DEV_CA || '';
 }
-rootCA = path.resolve(path.join(certPath, 'rootCA.pem'));
 
-const cloudDb = process.env.CLOUD_DB || '';
+let certKey;
+let caFile;
+
+fs.readFile(keyPath).then(buffer => (certKey = buffer));
+fs.readFile(caPath).then(buffer => (caFile = buffer));
+
+const cloudDb = process.env.HOSTINGER_CLOUD_DB || '';
+
+const mongoOptions = {
+	tls: true,
+	tlsCAFile: caFile,
+	tlsCertificateKeyFile: certKey
+};
 
 mongoose
-	.connect(cloudDb, {
-		// useNewUrlParser: true,
-		// useUnifiedTopology: true,
-		tls: true,
-		tlsCAFile: rootCA,
-		tlsCertificateKeyFile: certKey
-	})
+	.connect(
+		cloudDb,
+		mongoOptions
+		// 	{
+		// 	// useNewUrlParser: true,
+		// 	// useUnifiedTopology: true,
+		// 	tls: true,
+		// 	tlsCAFile: fs.readFileSync(rootCA),
+		// 	tlsCertificateKeyFile: certKey
+		// }
+	)
 	.then(() => {
-		console.log('Connected to Database');
+		console.log('Connected to Database at: ', process.env.HOSTINGER_DB);
 	})
 	.catch(err => {
 		console.log('Connection Failed' + err);
@@ -191,8 +188,8 @@ app.use(headersMiddleware.includeUrl);
 // app.use(headersMiddleware.logHeaders);
 
 app.use(cookieParser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '1000mb' }));
+app.use(bodyParser.urlencoded({ limit: '1000mb', extended: true }));
 
 //app.use(express.static(path.join(__dirname,"../dist/brian_app")));
 //Assign Routes
@@ -233,6 +230,10 @@ app.post('/ibescore/axios-test', async (req, res, next) => {
 	} catch (error) {
 		res.status(500).json({ status: 'ERROR', error });
 	}
+});
+
+app.use('/', (req, res) => {
+	res.status(200).json({ message: 'Reached ANY route' });
 });
 
 //Assign Angular Route

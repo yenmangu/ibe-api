@@ -4,6 +4,7 @@ const writeDeleteRequest = require('../xml_creation/historic_games');
 const serverResponse = require('./remote_response');
 const FormData = require('form-data');
 const { env } = process;
+const { CustomError } = require('../error/Error');
 
 const currentGame = env.CURRENT_GAME || '';
 const settings = env.SETTINGS || '';
@@ -346,12 +347,14 @@ async function sendPlayerDb(payload) {
 		// console.log('Send Player db payload: ', payload);
 
 		const { readStream } = payload;
+		const { xmlString } = payload;
 
 		const formData = new FormData();
 		formData.append('diasel', '4');
 		formData.append('diacc', '');
 		formData.append('diapass', '');
-		formData.append('upload', readStream);
+		// formData.append('upload', readStream);
+		formData.append('upload', xmlString);
 
 		const config = {
 			method: 'post',
@@ -359,12 +362,31 @@ async function sendPlayerDb(payload) {
 			data: formData,
 			maxContentLength: Infinity,
 			headers: getFormDataHeaders(formData),
-			timeout: 20000
+			timeout: 180000
 		};
 
-		console.log('about to send to remote');
+		console.log('Axios config: ', config);
 
-		const response = await axios.request(config);
+		// console.log('axios method: ', config.method);
+		// console.log('axios headers: ', config.headers);
+		// console.log('axios url: ', config.url);
+		// console.log('axios method: ', );
+
+		console.log('about to send to remote');
+		let response;
+		try {
+			response = await axios.request(config);
+			console.log('Response received:', response.status, response.statusText);
+		} catch (error) {
+			console.error('Error sending to remote:', error.message);
+			console.error('Error code:', error.code);
+			console.error('Error config:', error.config);
+			throw new Error('Error sending to remote');
+		}
+		if (!response || response == undefined) {
+			throw new CustomError('Error in getting response from remote server');
+		}
+
 		console.log('awaiting response from server');
 		return response.data;
 	} catch (error) {

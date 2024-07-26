@@ -108,6 +108,7 @@ exports.deleteGame = async (req, res, next) => {
 		console.log('Xml: ', xmlRequest);
 
 		const xmlResponse = await sendToRemote.deleteGame(xmlRequest);
+		console.log('Response from remote: ', xmlResponse.data);
 		const trimmed = xmlResponse.data.trim();
 		const remoteSuccess = await getResponseAndError(trimmed);
 		console.log('Remote Success: ', remoteSuccess);

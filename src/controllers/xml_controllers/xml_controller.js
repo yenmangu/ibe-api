@@ -7,6 +7,7 @@ const databaseXml = require('../../services/xml_creation/database_xml');
 const sendToRemote = require('../../services/remote/send_to_remote');
 const remoteRresponse = require('../../services/remote/remote_response');
 const xmlFileService = require('../../services/file_creation/xml_file_creation');
+const { CustomError } = require('../../services/error/Error');
 let counter = 1;
 
 async function readXmlFileControllerDev(filename) {
@@ -61,7 +62,7 @@ async function processJSON(jsonData) {
 		);
 
 		const result = await writeFileAsync(filePath, response, 'utf-8');
-		if (!result || result === false) {
+		if (!result) {
 			throw new Error('Error writing file');
 		}
 		return result;
@@ -174,17 +175,20 @@ async function importEntirePlayerDb(data) {
 		// console.log('importEntirePlayerDb data: ', data);
 		const { gameCode, dirKey, importData, meta } = data;
 
-		console.log('Import Entire DB data: ', gameCode, importData);
+		// console.log('Import Entire DB data: ', gameCode, importData);
 
 		// const dataRows = importData.slice(1);
 
 		const xmlString = await databaseXml.writeDbFromCsv(importData);
 		xmlString.trim();
+		console.log('XML received from XML service.');
 
-		const xmlFilePath = await xmlFileService.saveXmlToFile(xmlString);
+		const xmlFilePath = await xmlFileService.saveXmlToFile(xmlString.trim());
 		const readStream = await readFileAsync(xmlFilePath, 'UTF-8');
 		console.log('Read stream created');
-		const xmlResponse = await sendToRemote.sendPlayerDb({ readStream, gameCode });
+
+		// const xmlResponse = await sendToRemote.sendPlayerDb({ readStream, gameCode });
+		const xmlResponse = await sendToRemote.sendPlayerDb({ xmlString, gameCode });
 
 		const remoteResult = await remoteRresponse.getResponseAndError(xmlResponse);
 		const response = {
