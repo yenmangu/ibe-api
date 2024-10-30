@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const gameConfigSchema = mongoose.Schema(
+const gameConfigSchema = new mongoose.Schema(
 	{
 		game_code: { type: String, require: true },
 		game_id: { type: String, unique: true, required: true },
@@ -16,7 +16,7 @@ const gameConfigSchema = mongoose.Schema(
 		pairConfig: { type: {}, required: false },
 		pairNumbers: { type: {}, required: false },
 		teamConfig: { type: {}, required: false },
-		individuals: {type: {}, required: false}
+		individuals: { type: {}, required: false }
 	},
 	{ collection: 'game_config' }
 );

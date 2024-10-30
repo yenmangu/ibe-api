@@ -1,6 +1,7 @@
+const { CustomError } = require('../services/error/Error');
 const fileExtensionService = require('../services/file_extension');
 
-const clientError = new Error();
+const clientError = new CustomError();
 clientError.message = 'Invalid file';
 clientError.status = 400;
 

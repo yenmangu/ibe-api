@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
-const playerData = mongoose.Schema({
+const playerData = new mongoose.Schema({
 	addDate: { type: String, required: true },
 	lastPlayed: { type: String, required: false },
 	pp_n: { type: String, required: false }
 });
 
-const playerSchema = mongoose.Schema(
+const playerSchema = new mongoose.Schema(
 	{
 		slot: { type: String, required: true },
 		full_name: { type: String, required: true },
@@ -17,4 +17,4 @@ const playerSchema = mongoose.Schema(
 	{ collection: 'players' }
 );
 
-module.exports = mongoose.model('player', playerSchema)
+module.exports = mongoose.model('player', playerSchema);

@@ -1,23 +1,40 @@
 const mongoose = require('mongoose');
 const gameConfig = require('../models/game_config');
+const { CustomError } = require('./error/Error');
+
+function buildClientError(message, status) {
+	const clientError = new CustomError('Bad Request');
+	clientError.status = status ? status : 400;
+	clientError.message = message ? message : '';
+	Object.defineProperty(clientError, 'status', {
+		enumerable: true,
+		configurable: true,
+		value: clientError.status
+	});
+	Object.defineProperty(clientError, 'message', {
+		enumerable: true,
+		configurable: true,
+		value: clientError.message
+	});
+
+	return clientError;
+}
 
 async function saveGameConfig(gameCode, gameId, gameConfigData) {
 	try {
 		if (!gameConfigData) {
-			const clientError = new Error('Client Error: No game config to store');
-			clientError.status = 400;
-			throw clientError;
+			const error = buildClientError('Client Error: No game config to store', 400);
+			throw error;
 		}
 		if (!gameCode && !gameId) {
-			const clientError = new Error(
-				'Client Error: No Game Code or Game ID for storing game config'
+			const error = buildClientError(
+				'Client Error: No Game Code or Game ID for storing game config',
+				400
 			);
-			clientError.status = 400;
-			throw clientError;
+			throw error;
 		}
 
 		console.log('game config data: ', gameConfigData);
-
 
 		const newGameConfig = new gameConfig({
 			game_code: gameCode,
@@ -40,8 +57,7 @@ async function saveGameConfig(gameCode, gameId, gameConfigData) {
 		const result = await newGameConfig.save();
 
 		if (!result) {
-			const serverError = new Error('Error saving game');
-			serverError.status = 500;
+			const serverError = buildClientError('Error Saving Game', 500);
 			throw serverError;
 		}
 		return result;
@@ -53,12 +69,11 @@ async function saveGameConfig(gameCode, gameId, gameConfigData) {
 async function getGameConfig(gameCode, gameId) {
 	try {
 		if (!gameCode && !gameId) {
-			const clientError = new Error(
-				'Client Error: No Game Code for game retrieval'
+			const error = buildClientError(
+				'Client Error: No Game Code for game retrieval',
+				400
 			);
-			clientError.status = 400;
-			clientError.message = 'No game_code or game_id for retrieval';
-			throw clientError;
+			throw error;
 		}
 
 		const foundGameConfig = await gameConfig.findOne({
@@ -66,8 +81,7 @@ async function getGameConfig(gameCode, gameId) {
 			game_id: gameId
 		});
 		if (!foundGameConfig) {
-			const serverError = new Error('No found game config');
-			serverError.status = 500;
+			const serverError = buildClientError('No game config found', 500);
 			throw serverError;
 		} else {
 			// console.log(foundGameConfig);

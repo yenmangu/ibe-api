@@ -5,6 +5,7 @@ const parseResponse = require('../services/remote/remote_response');
 const sendFiles = require('../services/remote/send_files');
 const xmlService = require('../services/xml_processing/xml_service');
 const compressionService = require('../services/compression');
+const { CustomError } = require('../services/error/Error');
 
 const manageFinalseXML = async (req, res) => {
 	try {
@@ -26,7 +27,7 @@ const manageGameActions = async (req, res, next) => {
 		const data = req.body;
 		console.log('req.body: ', data);
 
-		const clientError = new Error();
+		const clientError = new CustomError();
 		clientError.status = 400;
 		clientError.message = 'Invalid path';
 		let result;
@@ -172,7 +173,7 @@ async function manageUploads(req, res, next) {
 		console.log('params', req.query);
 		console.log('request: ', req);
 
-		const clientError = new Error();
+		const clientError = new CustomError();
 		clientError.status = 400;
 		if (!files) {
 			clientError.message = 'No data in body';

@@ -1,5 +1,6 @@
 const xmlController = require('../controllers/xml_controllers/xml_controller');
 const currentGameController = require('../controllers/current_game');
+const CustomError = require('../services/error');
 
 exports.pocessTableConfig = async (req, res, next) => {
 	try {
@@ -8,7 +9,7 @@ exports.pocessTableConfig = async (req, res, next) => {
 		const body = req.body;
 		if (!body) {
 			// console.log('no body in request');
-			const clientError = new Error('No body in request');
+			const clientError = new CustomError('No body in request');
 			clientError.status = 400;
 			throw clientError;
 		}
@@ -73,9 +74,9 @@ exports.pocessTableConfig = async (req, res, next) => {
 		}
 
 		if (!remoteSuccess) {
-			const remoteError = new Error('Error in response from remote');
+			const remoteError = new CustomError('Error in response from remote');
 			remoteError.status = 500;
-			remoteError.error = err;
+			remoteError.errorDetails.customData = err;
 			throw remoteError;
 		}
 	} catch (error) {

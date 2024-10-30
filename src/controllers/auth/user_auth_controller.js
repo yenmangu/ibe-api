@@ -12,7 +12,7 @@ const xml_controller = require('../xml_controllers/xml_controller');
 const saltChars =
 	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$%^&*()-_+=~';
 
-const salt = bcrypt.genSaltSync(10, { charset: saltChars });
+const salt = bcrypt.genSaltSync(10);
 
 // Keys
 const keyPass = process.env.KEY_PASS;
@@ -30,6 +30,14 @@ const decryptedKey = crypto.createPrivateKey({
 	passphrase: keyPass
 });
 
+/**
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ * @returns {Promise<import('express').Response | void>}
+ */
+
 const login = async (req, res, next) => {
 	try {
 		// console.log('request \n \n \n ', req);
@@ -37,7 +45,8 @@ const login = async (req, res, next) => {
 		const { type, username, password } = req.body;
 
 		if (!type || !username || !password) {
-			return res.status(400).json({ status: 'ERROR', message: 'Invalid request' });
+			res.status(400).json({ status: 'ERROR', message: 'Invalid request' });
+			return;
 		}
 
 		let searchQuery = {};
@@ -155,6 +164,12 @@ const login = async (req, res, next) => {
 	}
 };
 
+// /**
+//  *
+//  * @param {import('express').Request<any>} req
+//  * @param {import('express').Response} res
+//  * @returns {Promise<import('express').Response | void>}
+//  */
 const isAuthed = async (req, res) => {
 	try {
 		// console.log(req);

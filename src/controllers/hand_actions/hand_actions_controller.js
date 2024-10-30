@@ -4,9 +4,10 @@ const remoteResponse = require('../../services/remote/remote_response');
 const XmlFileService = require('../../services/xml_creation/xml_file_creation');
 const CsvFileService = require('../../services/file_creation/csv_file_creation');
 const fs = require('fs');
+const CustomError = require('../../services/error');
 
 function buildClientError(message, status) {
-	const clientError = new Error('Bad Request');
+	const clientError = new CustomError('Bad Request');
 	clientError.status = status ? status : 400;
 	clientError.message = message ? message : '';
 	Object.defineProperty(clientError, 'status', {
@@ -25,7 +26,7 @@ function buildClientError(message, status) {
 
 async function handleHtmlPdf(req, res, next) {
 	try {
-		// console.log('request: ', req);
+		console.log('request: ', req.body);
 		const inputTitle = req.body.title;
 		if (Object.keys(req.query).length === 0) {
 			const error = buildClientError('No query params in request', 400);
@@ -53,10 +54,10 @@ async function handleHtmlPdf(req, res, next) {
 			fileType: req.body.fileType ? req.body.fileType : '',
 			eventName: ''
 		};
-		console.log('options: ', options);
+		// console.log('options: ', options);
 
 		if (TYPE === 'HTMLNEW') {
-			console.log('req.body: ', req.body);
+			// console.log('req.body: ', req.body);
 
 			options.eventName = req.body.eventName;
 			options.directorName = req.body.directorName;
@@ -66,14 +67,15 @@ async function handleHtmlPdf(req, res, next) {
 			options.handDiagrams = req.body.hands ? 't' : 'f';
 			options.personalScore = req.body.scorecards ? 't' : 'f';
 
-			console.log('new options: ', options);
+			// console.log('new options: ', options);
 		}
 		const queryString = await handActionsService.buildQueryString(options);
-		console.log('query string: ', queryString);
+		// console.log('query string: ', queryString);
 
 		// const payload = await handActionsService.buildPayload(options);
 		const response = await sendToRemote.getFile(queryString, options);
-		console.log('response from getFile: ', response);
+		console.log('after remote response, TYPE: ', TYPE);
+		console.log('after remote response, fileType: ', options.fileType);
 
 		if (TYPE === 'movement') {
 			res.setHeader('Content-Type', 'application/pdf');
@@ -90,6 +92,7 @@ async function handleHtmlPdf(req, res, next) {
 			}
 		}
 	} catch (error) {
+		console.error('Error in handleHtmlPdf', error);
 		next(error);
 	}
 }
@@ -100,7 +103,7 @@ async function handleDeleteHand(req, res, next) {
 
 		console.log('request query object: ', req.query);
 
-		if (Object.keys(req.query) < 1) {
+		if (Object.keys(req.query).length < 1) {
 			console.error('No query in request');
 			const error = buildClientError(
 				'Bad request: No gameCode parameter in request',

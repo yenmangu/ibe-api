@@ -1,15 +1,15 @@
 const { devMailService } = require('./mail_service');
 
 class CustomError extends Error {
-	constructor(message, errCode, customData) {
+	constructor(message, status, customData) {
 		super(message);
 		this.name = this.constructor.name;
-		this.errCode = errCode;
+		this.status = status;
 		Error.captureStackTrace(this, this.constructor);
 
 		this.errorDetails = {
 			name: `${this.name}`,
-			code: `${this.errCode}`,
+			status: `${this.status}`,
 			message: `${this.message}`,
 			stack: this.stack ? `${this.stack.replace(/\n/g, '</br>')}` : '',
 			customData: customData || null

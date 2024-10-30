@@ -1,15 +1,18 @@
+// @ts-nocheck
 const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const director = require('../models/director'); // Assuming you have a model named 'director'
+/**
+ * @type {import('axios')}
+ */
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const generateSlot = require('./user/slot_creation');
 const genPass = require('./user/generate_password');
 const sendMail = require('./nodemailer');
-const { error } = require('console');
 const sheetController = require('./google_controllers/sheets_controller');
 dotenv.config();
 
@@ -137,6 +140,8 @@ async function createDirector(req, res, next) {
 					directorKey: password
 				};
 				if (mailOptions) {
+					console.log('Mail Options correct, about to invoke sendNodeMail()');
+
 					const result = await sendMail.sendNodeMail(mailOptions);
 					console.log(result);
 				} else {
@@ -242,25 +247,33 @@ async function sendData(
 	// return;
 
 	try {
-		const headers = { 'Content-Type': 'text/plain' };
-		const response = await axios.post(process.env.VICTOR_SERVER, transformedData, {
-			headers: headers
-		});
-		// console.log('createDirector :', response);
+		/**
+		 * @type {string} VIC_SERVER
+		 */
+		let VIC_SERVER;
 
-		const lines = response.data.split();
-		result = lines[0].trim().toLowerCase();
-		// console.log('result: ', result, '     end result');
-		console.log(response.data);
-		const split = result.split('\n');
+		if (process.env.VICTOR_SERVER) {
+			VIC_SERVER = process.env.VICTOR_SERVER;
+			const headers = { 'Content-Type': 'text/plain' };
+			const response = await axios.post(VIC_SERVER, transformedData, {
+				headers: headers
+			});
+			// console.log('createDirector :', response);
 
-		if (result === 'success') {
-			console.log("Success from Victor's Server");
-			return result;
-		} else {
-			if (split[1] === 'slotalreadyexists')
-				// console.log(result);
-				throw new Error('SLOT_EXISTS');
+			const lines = response.data.split();
+			const result = lines[0].trim().toLowerCase();
+			// console.log('result: ', result, '     end result');
+			console.log(response.data);
+			const split = result.split('\n');
+
+			if (result === 'success') {
+				console.log("Success from Victor's Server");
+				return result;
+			} else {
+				if (split[1] === 'slotalreadyexists')
+					// console.log(result);
+					throw new Error('SLOT_EXISTS');
+			}
 		}
 		// console.log(response);
 	} catch (err) {
@@ -342,7 +355,9 @@ async function sendUpdatedPass(data) {
 		const headers = { 'Content-Type': 'text/plain' };
 
 		console.log('const string is:\n', string);
-
+		/**
+		 * @type {import('axios').AxiosResponse} response
+		 */
 		const response = await axios.post(url, string, { headers: headers });
 		let result;
 		if (response) {
@@ -430,7 +445,6 @@ async function updateDatabase(slot, email, hashedNewPassword) {
 
 async function handlePassReq(req, res) {
 	try {
-		
 		const slot = req.query.SLOT;
 		const { email } = req.body;
 		const password = genPass();
@@ -464,7 +478,7 @@ async function handlePassReq(req, res) {
 		if (result.errorCode) {
 			return res
 				.status(500)
-				.json({ message: result.message, err: result.errorCode , success: false});
+				.json({ message: result.message, err: result.errorCode, success: false });
 		}
 		const updatedDir = await updateDatabase(slot, email, hashedNewPassword);
 

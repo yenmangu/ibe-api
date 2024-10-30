@@ -21,8 +21,8 @@ const devAuthConfig = {
 
 const prodAuthConfig = {
 	auth: {
-		user: process.env.SMTP_EMAIL_1,
-		pass: process.env.SMTP_PASS_1
+		user: process.env.SMTP_EMAIL_2,
+		pass: process.env.SMTP_PASS_2
 	}
 };
 

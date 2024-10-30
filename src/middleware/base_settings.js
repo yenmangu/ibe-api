@@ -5,10 +5,11 @@ const namingNumberingXML = require('../services/xml_creation/naming_numbering_xm
 const settingsController = require('../controllers/game_settings');
 
 const sendToRemote = require('../services/remote/send_to_remote');
+const { CustomError } = require('../services/error/Error');
 
 async function baseSettings(req, res, next) {
 	try {
-		const clientError = new Error();
+		const clientError = new CustomError();
 
 		const bodyData = req.body;
 		if (!bodyData) {

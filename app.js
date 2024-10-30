@@ -1,17 +1,30 @@
+/**
+ * @type {import('express')}
+ */
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs').promises;
 const { exec } = require('child_process');
 const { BSON } = require('bson');
 const path = require('path');
+/**
+ * @type {import('morgan')}
+ */
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+/**
+ * @type {import('cookie-parser')}
+ */
 const cookieParser = require('cookie-parser');
 const timeLogger = require('./src/middleware/timeLogger');
 const errorHandling = require('./src/middleware/error_handling');
 const headersMiddleware = require('./src/middleware/headerLogging');
+
+/**
+ * @type {import('express').Express}
+ */
 const app = express();
 
 // //Init DotENV
@@ -31,18 +44,23 @@ const devCompanionOrigin = process.env.DEV_COMPANION_ORIGIN;
 const regOrigin = process.env.REGISTRATION_ORIGIN;
 const wwwHtppsCompanion = process.env.COMPANION_HTTPS_WWW;
 const wwwCompanion = process.env.COMPANION_WWW;
+const resultsOrigin = process.env.RESULTS;
+const resultsWWWOrigin = process.env.WWW_RESULTS;
 const originArray = [
 	process.env.ORIGIN,
 	localHost,
 	companionOrigin,
 	devCompanionOrigin,
 	'http://192.168.68.100:4200',
+	'http://192.168.68.130:4200',
 	regOrigin,
 	wwwCompanion,
-	wwwHtppsCompanion
+	wwwHtppsCompanion,
+	resultsOrigin,
+	resultsWWWOrigin
 ];
 
-console.log(`allowedOrigin/s are: ${originArray}`);
+// console.log(`allowedOrigin/s are: ${originArray}`);
 
 const corsOptions = {
 	optionsSuccessStatus: 200,
@@ -51,6 +69,7 @@ const corsOptions = {
 		if (originArray.includes(origin) || !origin) {
 			callback(null, true);
 		} else {
+			console.error(`Error origin: ${origin} is unauthorised`);
 			callback(new Error('unauthorized Origin'));
 		}
 	},
@@ -68,7 +87,6 @@ const webhook = require('./src/routes/webhook');
 
 const authRoute = require('./src/routes/auth');
 const eventRoute = require('./src/routes/event');
-const p2pRoute = require('./src/routes/p2p');
 const createTestUsers = require('./src/routes/test_users');
 const dealFiles = require('./src/routes/deal_files');
 const mailRoute = require('./src/routes/mail_route');
@@ -131,17 +149,9 @@ let keyPath = '';
 const nodeEnv = process.env.NODE_ENV;
 
 if (nodeEnv === 'prod') {
-	// certPath = path.resolve(path.join(__dirname, '..', '..', 'certs'));
-	// certKey = path.resolve(path.join(certPath, 'mongodb.pem'));
-	// rootCA = path.resolve(path.join(certPath, 'ca.pem'));
 	keyPath = process.env.DEV_KEY || '';
 	caPath = process.env.DEV_CA || '';
 } else {
-	// certPath = path.resolve(
-	// 	path.join(__dirname, '..', '..', '.ssh', 'server-certs', '')
-	// );
-	// certKey = path.resolve(path.join(certPath, 'mongodb.pem'));
-	// rootCA = path.resolve(path.join(certPath, 'ca.pem'));
 	keyPath = process.env.DEV_KEY || '';
 	caPath = process.env.DEV_CA || '';
 }
@@ -153,6 +163,10 @@ fs.readFile(keyPath).then(buffer => (certKey = buffer));
 fs.readFile(caPath).then(buffer => (caFile = buffer));
 
 const cloudDb = process.env.HOSTINGER_CLOUD_DB || '';
+const localDb = process.env.HOSTINGER_LOCAL || '';
+
+const db = process.env.NODE_ENV === 'dev' ? cloudDb : localDb;
+console.log('DB: ', db);
 
 const mongoOptions = {
 	tls: true,
@@ -161,49 +175,40 @@ const mongoOptions = {
 };
 
 mongoose
-	.connect(
-		cloudDb,
-		mongoOptions
-		// 	{
-		// 	// useNewUrlParser: true,
-		// 	// useUnifiedTopology: true,
-		// 	tls: true,
-		// 	tlsCAFile: fs.readFileSync(rootCA),
-		// 	tlsCertificateKeyFile: certKey
-		// }
-	)
+	.connect(db)
 	.then(() => {
-		console.log('Connected to Database at: ', process.env.HOSTINGER_DB);
+		console.log('Connected to Database at: localhost');
 	})
 	.catch(err => {
-		console.log('Connection Failed' + err);
+		console.log('Connection to database failed' + err);
 		console.error(err);
 	});
 
 //Initalise Morgan and BodyParser
-app.use(morgan('dev'));
 
+/**
+ * @type {import('morgan')}
+ */
+app.use(morgan('dev'));
 // Debugging middleware
 app.use(headersMiddleware.includeUrl);
 // app.use(headersMiddleware.logHeaders);
 
-app.use(cookieParser());
 app.use(bodyParser.json({ limit: '1000mb' }));
 app.use(bodyParser.urlencoded({ limit: '1000mb', extended: true }));
 
 //app.use(express.static(path.join(__dirname,"../dist/brian_app")));
 //Assign Routes
-app.get('/ibescore/api-check', (req, res) => {
+app.get('/api-check', (req, res) => {
 	res.status(200).json({ message: 'API working' });
 });
 
-app.use('/ibescore/dev', devRoute);
+app.use('/dev', devRoute);
 
 app.use('/ibescore/webhook', webhook);
 app.use('/ibescore/auth', authRoute);
 app.use('/ibescore/event', eventRoute);
 app.use('/ibescore/test', createTestUsers);
-app.use('/ibescore/p2p', p2pRoute);
 app.use('/ibescore/deal_files', dealFiles);
 app.use('/ibescore/mail', mailRoute);
 app.use('/ibescore/register', newRegistrationRoute);
@@ -219,7 +224,7 @@ app.use('/ibescore/spectate', spectateRoute);
 app.use('/ibescore/admin-tools', adminToolsRoute);
 app.use('/ibescore/verification', adminVerifyRoute);
 
-app.post('/ibescore/axios-test', async (req, res, next) => {
+app.post('/axios-test', async (req, res, next) => {
 	try {
 		const body = req.body;
 		if (body) {

@@ -4,6 +4,7 @@ const setupSecurity = require('../services/xml_creation/setup_security');
 const scoringXML = require('../services/xml_creation/scoring_xml');
 const appInterfaceXML = require('../services/xml_creation/app_interface_xml');
 const namingNumberingXML = require('../services/xml_creation/naming_numbering_xml');
+const CustomError = require('../services/error');
 
 async function processSettings(bodyData) {
 	try {
@@ -34,7 +35,7 @@ async function processSettings(bodyData) {
 			}
 		}
 		if (!xml) {
-			const serverError = new Error();
+			const serverError = new CustomError();
 			serverError.message = 'Internal Server Errror. No XML from write functions';
 			serverError.status = 500;
 			throw serverError;
@@ -75,7 +76,7 @@ async function uploadSettings(data) {
 
 			return remoteResponse;
 		} else {
-			const serverError = new Error('No remote response');
+			const serverError = new CustomError('No remote response');
 			serverError.status = 500;
 			throw serverError;
 		}
