@@ -16,12 +16,15 @@ const mailController = require('../controllers/nodemailer');
 
 dotenv.config();
 
+/**
+ *
+ */
 const router = express.Router();
 
 const saltChars =
 	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789$%^&*()-_+=~';
 
-const salt = bcrypt.genSaltSync(10, { charset: saltChars });
+const salt = bcrypt.genSaltSync(10);
 
 // Keys
 const keyPass = process.env.KEY_PASS;
@@ -82,7 +85,7 @@ router.post('/', directorController.createDirector);
 
 router.delete('/', checkAuth, (req, res, next) => {
 	var id = req.query.id;
-	user
+	director
 		.findOneAndDelete({ _id: id })
 		.then(result => {
 			res.json({ deletedDirector: result, err: null, message: 'Deleted director' });
@@ -93,9 +96,9 @@ router.delete('/', checkAuth, (req, res, next) => {
 });
 
 router.post('/check-username', (req, res, next) => {
-	directorData.find({}, { user_name: 1, _id: 0 }).then(result => {
+	director.find({}, { user_name: 1, _id: 0 }).then(result => {
 		var usernameArray = new Array();
-		for (idx in result) {
+		for (const idx in result) {
 			usernameArray.push(result[idx].user_name);
 		}
 		if (usernameArray.includes(req.body.name)) {
@@ -107,7 +110,7 @@ router.post('/check-username', (req, res, next) => {
 });
 
 // Update email route
-router.put('/update-email', async (req, res) => {
+router.put('/update-email', async (req, res, next) => {
 	const { directorId, newEmail } = req.body;
 
 	try {
@@ -117,7 +120,8 @@ router.put('/update-email', async (req, res) => {
 			{ new: true }
 		);
 		if (!updatedDirector) {
-			return res.status(404).json({ message: 'No Director Found' });
+			res.status(404).json({ message: 'No Director Found' });
+			return;
 		}
 
 		const mailOptions = await findContactBuildMailOptions(directorId);
@@ -126,12 +130,15 @@ router.put('/update-email', async (req, res) => {
 			console.log();
 		}
 
-		return res
-			.status(200)
-			.json({ message: 'Email updated Successfully', updatedDirector, success: true });
+		res.status(200).json({
+			message: 'Email updated Successfully',
+			updatedDirector,
+			success: true
+		});
 	} catch (err) {
 		console.error('Error Updating Email', err);
-		return res.status(500).json({ message: 'Internal Server Error', Error: err });
+		res.status(500).json({ message: 'Internal Server Error', Error: err });
+		throw err;
 	}
 });
 
@@ -161,43 +168,43 @@ router.put('/update-password', directorController.updatePassword);
 
 router.post('/request-password', directorController.handlePassReq);
 
-router.put('/addiional-slot', checkAuth, async (req, res, next) => {
-	try {
-		if (!req.query.id) {
-			return res.status(400).json({ message: 'No ID in request' });
-		}
+// router.put('/addiional-slot', checkAuth, async (req, res, next) => {
+// 	try {
+// 		if (!req.query.id) {
+// 			return res.status(400).json({ message: 'No ID in request' });
+// 		}
 
-		if (!req.query.additSlot) {
-			return res.status(400).json({ message: 'No additSlot in request' });
-		}
+// 		if (!req.query.additSlot) {
+// 			return res.status(400).json({ message: 'No additSlot in request' });
+// 		}
+// 		const additSlot = req.query.additSlot;
+// 		res
+// 			.status(200)
+// 			.json({ message: `new slot: ${additSlot} added to account ID ${id}` });
+// 	} catch (err) {
+// 		console.error(err);
+// 		res.status(500).json({ message: 'Internal Server Error' });
+// 	}
+// });
 
-		res
-			.status(200)
-			.json({ message: `new slot: ${additSlot} added to account ID ${id}` });
-	} catch (err) {
-		console.error(err);
-		res.status(500).json({ message: 'Internal Server Error' });
-	}
-});
-
-const newDir = () => {
-	newDirector.save().then(result => {
-		const jwtBearerToken = jwt.sign({}, decryptedKey, {
-			algorithm: 'RS256',
-			expiresIn: '1h',
-			subject: result.slot,
-			allowInsecureKeySizes: true
-		});
-		if (!process.env.ALLOW_LOCAL_STORAGE) {
-			res.cookie('SESSIONID', jwtBearerToken, {
-				httpOnly: true,
-				secure: true,
-				maxAge: 3600000,
-				user: result,
-				err: null
-			});
-		}
-	});
-};
+// const newDir = () => {
+// 	director.save().then(result => {
+// 		const jwtBearerToken = jwt.sign({}, decryptedKey, {
+// 			algorithm: 'RS256',
+// 			expiresIn: '1h',
+// 			subject: result.slot,
+// 			allowInsecureKeySizes: true
+// 		});
+// 		if (!process.env.ALLOW_LOCAL_STORAGE) {
+// 			res.cookie('SESSIONID', jwtBearerToken, {
+// 				httpOnly: true,
+// 				secure: true,
+// 				maxAge: 3600000,
+// 				user: result,
+// 				err: null
+// 			});
+// 		}
+// 	});
+// };
 
 module.exports = router;

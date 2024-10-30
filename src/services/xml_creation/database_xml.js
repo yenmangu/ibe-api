@@ -18,7 +18,6 @@ async function writeEmpty() {
 		const xmlString = root.end({ prettyPrint: true });
 		xmlString.trim();
 		console.log(`xml string: "${xmlString}"`);
-
 		return xmlString;
 	} catch (error) {
 		throw error;

@@ -140,8 +140,9 @@ const manageGameActions = async (req, res, next) => {
 					throw clientError;
 				} else {
 					const response = await sendToRemote.purgeRequest(result);
-					console.log('response: ', response.data);
-					if (response.data.split('\n')[0] === 'success') {
+
+					console.log('response: ', response?.data);
+					if (response && response.data.split('\n')[0] === 'success') {
 						success.successVal = true;
 					}
 				}

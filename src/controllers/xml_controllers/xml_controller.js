@@ -1,4 +1,7 @@
 const path = require('path');
+const FormData = require('form-data');
+const fs = require('fs').promises;
+const createReadStream = require('fs').createReadStream;
 const { readFileAsync, writeFileAsync } = require('../../services/file_service');
 const xmlService = require('../../services/xml_processing/xml_service');
 const compressJSON = require('../../services/compression');
@@ -8,6 +11,8 @@ const sendToRemote = require('../../services/remote/send_to_remote');
 const remoteRresponse = require('../../services/remote/remote_response');
 const xmlFileService = require('../../services/file_creation/xml_file_creation');
 const { CustomError } = require('../../services/error/Error');
+const remoteHandler = require('../../services/remote/remoteHandler');
+
 let counter = 1;
 
 async function readXmlFileControllerDev(filename) {
@@ -219,14 +224,18 @@ async function importEntirePlayerDb(data) {
 async function coordinateDbDelete(data) {
 	try {
 		const { gameCode } = data;
+		console.log(`Deleting entry with gameCode: ${gameCode}`);
 		const emptyXml = await databaseXml.writeEmpty();
 		// console.log('empty xml: ', emptyXml);
 
 		// return;
 
-		const xmlFilePath = await xmlFileService.saveXmlToFile(emptyXml);
-		const readStream = await readFileAsync(xmlFilePath, 'UTF-8');
-		const xmlResponse = await sendToRemote.sendPlayerDb({ readStream, gameCode });
+		const xmlFilePath = await xmlFileService.saveXmlToFile(emptyXml.trim());
+		// const file = await readFileAsync(xmlFilePath, 'UTF-8');
+		const file = createReadStream(xmlFilePath);
+
+		// const xmlResponse = await sendToRemote.sendPlayerDb({ file, gameCode });
+		const xmlResponse = await remoteHandler.uploadDatabaseAsync({ file, gameCode });
 		console.log('xmlResponse: ', xmlResponse);
 
 		const remoteResult = await remoteRresponse.getResponseAndError(xmlResponse);

@@ -30,15 +30,15 @@ const decryptedKey = crypto.createPrivateKey({
 	passphrase: keyPass
 });
 
-/**
- *
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @param {import('express').NextFunction} next
- * @returns {Promise<import('express').Response | void>}
- */
+// /**
+//  *
+//  * @param {import('express').Request} req
+//  * @param {import('express').Response} res
+//  * @param {import('express').NextFunction} next
+//  * @returns {Promise<import('express').Response | void>}
+//  */
 
-const login = async (req, res, next) => {
+async function login(req, res, next) {
 	try {
 		// console.log('request \n \n \n ', req);
 
@@ -162,7 +162,7 @@ const login = async (req, res, next) => {
 		console.error('Error during login:', error);
 		res.status(500).json({ status: 'ERROR', message: 'Internal server error' });
 	}
-};
+}
 
 // /**
 //  *

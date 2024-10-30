@@ -130,6 +130,8 @@ async function coordinateBwFromOps(req, res, next) {
 
 		const bridgeWebsFormdata = bwFormDataService.createBridgeWebsFormdata(formData);
 
+		console.log('BW Form Data: ', bridgeWebsFormdata);
+
 		const data = { gameCode, dirKey, formData: bridgeWebsFormdata };
 
 		console.log('data: ', data);
@@ -207,7 +209,12 @@ async function handleDatabaseImport(req, res, next) {
 
 async function handleDeleteRequest(req, res, next) {
 	try {
+		console.log('Reached delete request');
+
 		const { gameCode, dirKey } = req.query;
+		if (!gameCode) {
+			throw new CustomError('Error no gamecode in request');
+		}
 		// console.log(req);
 		const serverResponse = await xmlController.coordinateDbDelete({ gameCode });
 

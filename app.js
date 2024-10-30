@@ -66,6 +66,8 @@ const corsOptions = {
 	optionsSuccessStatus: 200,
 	// allowedHeaders: ['X-Filename'],
 	origin: function (origin, callback) {
+		console.log('Incoming origin: ', origin);
+
 		if (originArray.includes(origin) || !origin) {
 			callback(null, true);
 		} else {
@@ -77,6 +79,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 //Import Routes
 // const authRoute = require('./src/routes/auth');
@@ -173,16 +176,17 @@ const mongoOptions = {
 	tlsCAFile: caFile,
 	tlsCertificateKeyFile: certKey
 };
-
-mongoose
-	.connect(db)
-	.then(() => {
-		console.log('Connected to Database at: localhost');
-	})
-	.catch(err => {
-		console.log('Connection to database failed' + err);
-		console.error(err);
-	});
+if (process.env.NODE_ENV !== 'dev') {
+	mongoose
+		.connect(db)
+		.then(() => {
+			console.log('Connected to Database at: localhost');
+		})
+		.catch(err => {
+			console.log('Connection to database failed' + err);
+			console.error(err);
+		});
+}
 
 //Initalise Morgan and BodyParser
 
@@ -239,6 +243,20 @@ app.post('/axios-test', async (req, res, next) => {
 
 app.use('/', (req, res) => {
 	res.status(200).json({ message: 'Reached ANY route' });
+});
+
+app.use((err, req, res, next) => {
+	console.error('Global Error Handler:', err);
+	res.status(500).send('Something broke!');
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+	console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', error => {
+	console.error('Uncaught Exception:', error.stack || error);
+	// process.exit(1); // Consider removing this line if you don’t want the app to crash
 });
 
 //Assign Angular Route

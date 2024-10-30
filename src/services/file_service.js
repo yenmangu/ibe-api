@@ -6,6 +6,7 @@ const dev_dir = path.resolve(__dirname, '../../dev_data/xml');
 async function readFileAsync(filePath, encoding) {
 	try {
 		const content = await fs.readFile(filePath, encoding);
+
 		return content;
 	} catch (err) {
 		throw err;
