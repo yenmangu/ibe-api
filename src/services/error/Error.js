@@ -1,50 +1,73 @@
+const { devMailService } = require('../mail_service');
+
+/**
+ * @class CustomError
+ * @extends {Error}
+ * @property {ErrorDetails} errorDetails
+ */
 class CustomError extends Error {
-	constructor(
-		message,
-		status = 400,
-		stack = 'No stack',
-		error = 'No Error details',
-		additionalDetails = {}
-	) {
-		super(message);
-		(this.name = 'ClientError'), (this.status = status);
-		this.stack = stack;
-		this.error = error;
+	/**
+	 *
+	 * @param {string} message
+	 * @param {number} status
+	 * @param {any} customData
+	 */
+	constructor(message = 'An error occurred', status = 500, customData = null) {
+		super(message); // call parent class parameter
+		/** @type {string} */
+		this.name = this.constructor.name;
+		/** @type {number} */
+		this.status = status ? status : 500;
+		this.customData = customData || null;
+		Error.captureStackTrace(this, this.constructor);
+	}
 
-		for (const [key, value] of Object.entries(additionalDetails)) {
-			this[key] = value;
-		}
-
-		Object.defineProperty(this, 'status', {
-			enumerable: true,
-			configurable: true,
-			value: this.status
-		});
-		Object.defineProperty(this, 'message', {
-			enumerable: true,
-			configurable: true,
-			value: this.message
-		});
-		Object.defineProperty(this, 'stack', {
-			enumerable: true,
-			configurable: true,
-			value: this.stack
-		});
-		Object.defineProperty(this, 'error', {
-			enumerable: true,
-			configurable: true,
-			value: this.error
-		});
+	/**
+	 * @typedef {Object} ErrorDetails
+	 * @property {string} name
+	 * @property {number} status
+	 * @property {string} message
+	 * @property {string} stack
+	 * @property {any} customData
+	 */
+	/**
+	 * A getter for error details.
+	 * @returns {ErrorDetails} - An object containing detailed error information
+	 */
+	get errorDetails() {
+		return {
+			name: this.name,
+			status: this.status,
+			message: this.message,
+			stack: this.stack ? `${this.stack.replace(/\n/g, '</br>')}` : '',
+			// stack: this.stack,
+			customData: this.customData
+		};
 	}
 }
+module.exports = CustomError;
 
-function buildCustomError(
-	message,
-	status,
-	stack = 'no stack',
-	error = 'No Error details',
-	additionalDetails = {}
-) {
-	return new CustomError(message, status, stack, error, additionalDetails);
-}
-module.exports = { buildCustomError, CustomError };
+// 	async sendErrorMail() {
+// 		// Timer start
+// 		console.log('Starting timer "sendErrorMail": 0s');
+// 		console.time('sendErrorMail');
+// 		const emailBody = JSON.stringify(this.errorDetails, undefined, 2);
+// 		const result = await devMailService.sendMail(emailBody);
+
+// 		console.log('Error email sent with details:\n', emailBody);
+// 		// Timer end
+// 		console.log(`Ending timer: "sendErrorMail" :`);
+// 		console.timeEnd('sendErrorMail');
+
+// 		return result;
+// 	}
+// }
+
+// this.errorDetails = {
+// 	name: this.name,
+// 	status: this.status,
+// 	message: this.message,
+// 	stack: this.stack,
+// 	// customData: customData || null
+// 	customData: this.customData
+// };

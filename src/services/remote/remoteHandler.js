@@ -1,4 +1,4 @@
-const { CustomError } = require('../error/Error');
+const CustomError = require('../error/error');
 
 const FormData = require('form-data');
 const axios = require('axios');
@@ -7,6 +7,7 @@ const { env } = process;
 
 const writeDB = env.WRITE_DB || '';
 const importDb = env.IMPORT_DB || '';
+const putBW = env.PUT_BW || '';
 
 const axiosInstance = axios.create();
 
@@ -53,6 +54,17 @@ const uploadDatabaseAsync = async payload => {
 	}
 };
 
+function handleAxiosError(error) {
+	console.error('error in remote handler: ', error);
+	if (error.response) {
+		throw new CustomError('Error in response');
+	}
+	if (error.request) {
+		throw new CustomError('Error in request');
+	}
+	throw new CustomError('Error setting up request');
+}
+
 axiosInstance.interceptors.request.use(
 	config => {
 		console.log('Request made with Axios:');
@@ -68,4 +80,18 @@ axiosInstance.interceptors.request.use(
 	}
 );
 
-module.exports = { uploadDatabaseAsync };
+async function uploadToBridgeWebsAsync(payloadString) {
+	try {
+		const reponse = await axios.request({
+			url: putBW,
+			data: payloadString,
+			headers: { 'Content-Type': 'text/plain' },
+			timeout: 30000
+		});
+		return reponse.data;
+	} catch (error) {
+		handleAxiosError();
+	}
+}
+
+module.exports = { uploadDatabaseAsync, uploadToBridgeWebsAsync };

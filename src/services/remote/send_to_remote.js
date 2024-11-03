@@ -4,7 +4,7 @@ const writeDeleteRequest = require('../xml_creation/historic_games');
 const serverResponse = require('./remote_response');
 const FormData = require('form-data');
 const { env } = process;
-const { CustomError } = require('../error/Error');
+const CustomError = require('../error/error');
 
 const currentGame = env.CURRENT_GAME || '';
 const settings = env.SETTINGS || '';

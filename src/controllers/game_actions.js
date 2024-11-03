@@ -5,7 +5,7 @@ const parseResponse = require('../services/remote/remote_response');
 const sendFiles = require('../services/remote/send_files');
 const xmlService = require('../services/xml_processing/xml_service');
 const compressionService = require('../services/compression');
-const { CustomError } = require('../services/error/Error');
+const CustomError = require('../services/error/error');
 
 const manageFinalseXML = async (req, res) => {
 	try {

@@ -1,6 +1,6 @@
 const xmlController = require('../controllers/xml_controllers/xml_controller');
 const currentGameController = require('../controllers/current_game');
-const CustomError = require('../services/error');
+const CustomError = require('../services/error/error');
 
 exports.pocessTableConfig = async (req, res, next) => {
 	try {

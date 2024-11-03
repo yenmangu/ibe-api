@@ -1,30 +1,24 @@
-/**
- * @type {import('express')}
- */
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs').promises;
 const { exec } = require('child_process');
 const { BSON } = require('bson');
 const path = require('path');
-/**
- * @type {import('morgan')}
- */
+
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-/**
- * @type {import('cookie-parser')}
- */
+
 const cookieParser = require('cookie-parser');
 const timeLogger = require('./src/middleware/timeLogger');
 const errorHandling = require('./src/middleware/error_handling');
 const headersMiddleware = require('./src/middleware/headerLogging');
-
 /**
- * @type {import('express').Express}
+ * @typedef {import('./src/services/error/error').CustomError} CustomError
  */
+const CustomError = require('./src/services/error/error');
+
 const app = express();
 
 // //Init DotENV
@@ -245,10 +239,21 @@ app.use('/', (req, res) => {
 	res.status(200).json({ message: 'Reached ANY route' });
 });
 
-app.use((err, req, res, next) => {
-	console.error('Global Error Handler:', err);
-	res.status(500).send('Something broke!');
-});
+app.use(
+	/**
+	 * @param {import('express').Request} req
+	 * @param {import('express').Response} res
+	 * @param {import('express').NextFunction} next
+	 */
+	(err, req, res, next) => {
+		console.error('Global Error Handler:', err.errorDetails || err);
+		const status = err.status ? err.status : 500;
+		const message = err.message
+			? err.message
+			: 'Internal Server Error. Something Broke!';
+		res.status(status).json({ message });
+	}
+);
 
 process.on('unhandledRejection', (reason, promise) => {
 	console.error('Unhandled Rejection at:', promise, 'reason:', reason);

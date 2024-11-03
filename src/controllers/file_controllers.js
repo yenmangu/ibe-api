@@ -1,4 +1,4 @@
-const { CustomError } = require('../services/error/Error');
+const CustomError = require('../services/error/error');
 const fileExtensionService = require('../services/file_extension');
 
 const clientError = new CustomError();

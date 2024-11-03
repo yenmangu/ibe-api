@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { CustomError } = require('../error/Error');
+const CustomError = require('../error/Error');
 
 const clientError = new CustomError();
 clientError.message = 'Invalid request';

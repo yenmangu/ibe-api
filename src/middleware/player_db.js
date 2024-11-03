@@ -2,7 +2,7 @@ const xmlController = require('../controllers/xml_controllers/xml_controller');
 const sendToRemote = require('../services/remote/send_to_remote');
 const parseResponse = require('../services/remote/remote_response');
 const { parse } = require('path');
-const { buildCustomError, CustomError } = require('../services/error/Error');
+const { buildCustomError, CustomError } = require('../services/error/error');
 const { getCurrentData } = require('../services/get_current');
 const fsp = require('fs').promises;
 const fs = require('fs');
@@ -104,7 +104,7 @@ async function coordinateDatabaseOps(req, res, next) {
 	}
 }
 
-// BRIDGEWEBS FROM
+// From BridgeWebs to DB
 
 async function coordinateBwFromOps(req, res, next) {
 	try {
@@ -150,7 +150,7 @@ async function coordinateBwFromOps(req, res, next) {
 		if (remoteSuccess.sfAttribute === 'f') {
 			apiResponse.message = 'fail';
 			apiResponse.success = false;
-			apiResponse.ClientError = remoteSuccess.errAttribute;
+			apiResponse.clientError = remoteSuccess.errAttribute;
 		}
 
 		res.status(200).json(apiResponse);

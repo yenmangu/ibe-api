@@ -10,7 +10,7 @@ const databaseXml = require('../../services/xml_creation/database_xml');
 const sendToRemote = require('../../services/remote/send_to_remote');
 const remoteRresponse = require('../../services/remote/remote_response');
 const xmlFileService = require('../../services/file_creation/xml_file_creation');
-const { CustomError } = require('../../services/error/Error');
+const CustomError = require('../../services/error/error');
 const remoteHandler = require('../../services/remote/remoteHandler');
 
 let counter = 1;

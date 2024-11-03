@@ -7,14 +7,9 @@ const router = express.Router();
 router.post('/movement-pdf', handActions.handleHtmlPdf);
 
 router.post('/bridgewebs', handActions.handleBridgewebsDownload);
-router.post(
-	'/ebu/download',
-	handActions.handleEBU
-	// (req, res, next) => {
-	// 	const body = req.body;
-	// 	res.status(200).json({ message: 'success', body });
-	// }
-);
+router.post('/upload-bridgewebs', handActions.handleBridgeWebsUpload);
+
+router.post('/ebu/download', handActions.handleEBU);
 
 router.post('/ebu/upload', (req, res, next) => {
 	const body = req.body;

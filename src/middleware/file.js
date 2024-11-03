@@ -1,6 +1,6 @@
 const multer = require('multer');
 const fileExtensionController = require('../controllers/file_controllers');
-const { CustomError } = require('../services/error/Error');
+const CustomError = require('../services/error/error');
 
 const clientError = new CustomError();
 clientError.message = 'Client Error - No files provided';

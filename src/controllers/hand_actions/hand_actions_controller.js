@@ -1,10 +1,14 @@
+//@ts-check
+
 const handActionsService = require('../../services/hand_actions_service');
 const sendToRemote = require('../../services/remote/send_to_remote');
 const remoteResponse = require('../../services/remote/remote_response');
 const XmlFileService = require('../../services/xml_creation/xml_file_creation');
 const CsvFileService = require('../../services/file_creation/csv_file_creation');
 const fs = require('fs');
-const CustomError = require('../../services/error');
+const CustomError = require('../../services/error/error');
+const payload = require('../../services/payload');
+const remoteHandler = require('../../services/remote/remoteHandler');
 
 function buildClientError(message, status) {
 	const clientError = new CustomError('Bad Request');
@@ -251,6 +255,71 @@ async function handleEBU(req, res, next) {
 	}
 }
 
+/**
+ *
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
+
+async function handleBridgeWebsUpload(req, res, next) {
+	console.log('Reached handle bridge webs upload');
+
+	try {
+		let clientError = new CustomError();
+		const { gameCode } = req.query;
+		if (!gameCode) {
+			clientError.message = 'No GameCode in request';
+			clientError.status = 400;
+			throw clientError;
+		}
+		const {
+			bwEventName,
+			bwDirectorName,
+			bwScorerName,
+			bwMasterpoints,
+			masterpointsMatchWon,
+			bwAccountName,
+			bwPassword
+		} = req.body;
+		const requiredKeys = [
+			'bwAccountName',
+			'bwPassword',
+			'bwEventName',
+			'bwScorerName',
+			'bwDirectorName',
+			'bwMasterpoints'
+		];
+		let missing = [];
+		for (const key of requiredKeys) {
+			if (!Object.hasOwn(req.body, key)) {
+				missing.push(key);
+			}
+		}
+		if (missing.length) {
+			const missingString = missing.join(', ');
+			clientError.message =
+				'Bad Request. Request is missing the following: ' + missingString;
+			clientError.status = 400;
+			throw clientError;
+		}
+
+		const payloadString = payload.writeBridgeWebsPayload({ ...req.body, gameCode });
+		const serverResponse = await remoteHandler.uploadToBridgeWebsAsync(
+			payloadString
+		);
+
+		if (!remoteResponse.validateBridgewebsResponse(serverResponse)) {
+			throw new CustomError('Invalid Response from remote server');
+		}
+		const remoteSuccess = remoteResponse.getBridgeWebsResult(serverResponse);
+
+		res.status(200).send({ remoteSuccess, originalResponse: serverResponse });
+	} catch (error) {
+		next(error);
+	}
+}
+
 async function handleBridgewebsDownload(req, res, next) {
 	try {
 		console.log('req: ', req.body);
@@ -292,5 +361,6 @@ module.exports = {
 	handleUpload,
 	handleEBU,
 	handleBridgewebsDownload,
+	handleBridgeWebsUpload,
 	buildClientError
 };

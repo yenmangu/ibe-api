@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const gameConfig = require('../models/game_config');
-const { CustomError } = require('./error/Error');
+const CustomError = require('./error/Error');
 
 function buildClientError(message, status) {
 	const clientError = new CustomError('Bad Request');

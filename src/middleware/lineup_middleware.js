@@ -1,5 +1,5 @@
 const publicGameController = require('../controllers/public_game_controller');
-const { CustomError } = require('../services/error/Error');
+const CustomError = require('../services/error/error');
 
 exports.getGameConfig = async (req, res, next) => {
 	try {

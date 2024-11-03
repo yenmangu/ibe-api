@@ -1,6 +1,6 @@
 const { parseString } = require('xml2js');
-const { CustomError, buildCustomError } = require('../error/Error');
-
+const CustomError = require('../error/error');
+const { response } = require('express');
 // Used in the send_to_remote send_files
 
 async function getRemoteResponse(xmlResponse) {
@@ -160,6 +160,130 @@ function getResponse(parsedString, tag) {
 	// console.log('lines from parsed string: ',lines);
 }
 
+function validateBridgewebsResponse(responseData) {
+	if (typeof responseData !== 'string') {
+		return false;
+	}
+	const array = responseData.split('\n');
+	if (array.length === 1 && array[0] === '') {
+		return false;
+	}
+	return true;
+}
+
+function getBridgeWebsResult(serverResponse) {
+	if (typeof serverResponse !== 'string') {
+		throw new CustomError('Unknown error from remote response');
+	}
+	const responseArray = serverResponse.split('\n');
+	const firstLine = typeof responseArray[0] === 'string' ? responseArray[0] : '';
+	const secondLine = typeof responseArray[1] === 'string' ? responseArray[1] : '';
+	const errorArray = [];
+	let errorString = '';
+	let message = '';
+	let responseObject = {
+		success: false
+	};
+
+	if (firstLine === '') {
+		throw new CustomError('Unknown error from remote server', 500);
+	}
+	if (
+		firstLine.toLowerCase().trim() !== 'failure' &&
+		!firstLine.toLowerCase().trim().split(' ').includes('message')
+	) {
+		errorString = firstLine.toLowerCase().trim();
+		errorArray.push(errorString);
+	}
+	if (firstLine.toLowerCase() === 'failure') {
+		errorString = secondLine;
+		errorArray.push(errorString);
+	}
+
+	let firstLower = firstLine.toLowerCase();
+	const firstLineArray = firstLower.split(' ');
+
+	if (firstLineArray.includes('error') || firstLineArray.includes('fail')) {
+		errorArray.push(firstLower);
+	}
+	if (firstLineArray.includes('successful') || firstLineArray.includes('success')) {
+		responseObject.success = true;
+		message = firstLower;
+	}
+
+	if (errorArray.length > 0) {
+		responseObject.error = errorArray;
+	}
+	if (message !== '') {
+		responseObject.message = message;
+	}
+	return responseObject;
+}
+
+// function getBridgeWebsResult(serverResponse) {
+// 	const responseArray = serverResponse.split('\n');
+// 	const errorArray = [];
+// 	let responseObject = {
+// 		success: false,
+// 		message: ''
+// 	};
+
+// 	if (typeof serverResponse !== 'string') {
+// 		throw new CustomError('Unknown error in remote server response', 500);
+// 	}
+
+// 	const normalisedResponse = serverResponse.toLowerCase().trim();
+
+// 	if (normalisedResponse.includes('success')) {
+// 		responseObject.success = true;
+// 		responseObject.message = extractMessage(normalisedResponse, 'success');
+// 	} else {
+// 		errorArray.push(...extractErrors(normalisedResponse));
+// 		responseObject.error =
+// 			errorArray.length > 0 ? errorArray : ['ERROR Unknown error'];
+// 	}
+// 	return responseObject;
+// }
+
+function extractMessage(response, keyword) {
+	if (typeof response !== 'string') {
+		throw new CustomError('Unknown error in remote server response', 500);
+	}
+	// const regex = new RegExp(`${keyword}\\s*=\\s*([^\\n]*)`, 'i');
+	// const match = response.match(regex);
+	// console.log('match: ', match);
+
+	// return match ? match[1].trim() : '';
+
+	const keywordLower = keyword.toLowerCase();
+	const lines = response.split('\n');
+	for (const line of lines) {
+		if (line.toLowerCase().startsWith(keywordLower)) {
+			return line.substring(line.indexOf('=') + 1).trim();
+		}
+	}
+	return '';
+}
+
+function extractErrors(response) {
+	if (typeof response !== 'string') {
+		return [''];
+	}
+	const errors = [];
+	const lines = response.split('\n');
+
+	lines.forEach(line => {
+		if (
+			lines.includes('error') ||
+			line.includes('failure') ||
+			line.includes('message')
+		) {
+			errors.push(line.trim());
+		}
+	});
+	return errors;
+}
+
 module.exports = {
 	getRemoteResponse,
 	mapRemoteResponse,
@@ -169,5 +293,7 @@ module.exports = {
 	determineSuccess,
 	parseResponseText,
 	getResponse,
-	getResponseAndError
+	getResponseAndError,
+	validateBridgewebsResponse,
+	getBridgeWebsResult
 };
