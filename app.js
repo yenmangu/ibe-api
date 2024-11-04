@@ -14,10 +14,6 @@ const cookieParser = require('cookie-parser');
 const timeLogger = require('./src/middleware/timeLogger');
 const errorHandling = require('./src/middleware/error_handling');
 const headersMiddleware = require('./src/middleware/headerLogging');
-/**
- * @typedef {import('./src/services/error/error').CustomError} CustomError
- */
-const CustomError = require('./src/services/error/error');
 
 const app = express();
 

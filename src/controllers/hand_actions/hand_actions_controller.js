@@ -313,6 +313,10 @@ async function handleBridgeWebsUpload(req, res, next) {
 			throw new CustomError('Invalid Response from remote server');
 		}
 		const remoteSuccess = remoteResponse.getBridgeWebsResult(serverResponse);
+		if (remoteSuccess.success === false) {
+			res.status(400).send({ remoteSuccess, originalResponse: serverResponse });
+			return;
+		}
 
 		res.status(200).send({ remoteSuccess, originalResponse: serverResponse });
 	} catch (error) {
