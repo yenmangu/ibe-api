@@ -6,8 +6,14 @@ const router = express.Router();
 // router.get('/download',handActions.handleDownload)
 router.post('/movement-pdf', handActions.handleHtmlPdf);
 
-router.post('/bridgewebs', handActions.handleBridgewebsDownload);
-router.post('/upload-bridgewebs', handActions.handleBridgeWebsUpload);
+// router.post('/download-bridgewebs', handActions.handleBridgewebsDownload);
+// router.post('/upload-bridgewebs', handActions.handleBridgeWebsUpload);
+
+router.post(
+	'/bridgewebs',
+	handActions.bridgeWebsValidator,
+	handActions.bridgeWebsRouteHandler
+);
 
 router.post('/ebu/download', handActions.handleEBU);
 

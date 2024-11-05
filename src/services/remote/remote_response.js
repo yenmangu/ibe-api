@@ -204,7 +204,12 @@ function getBridgeWebsResult(serverResponse) {
 	const firstLineArray = firstLower.split(' ');
 
 	if (firstLineArray.includes('error') || firstLineArray.includes('fail')) {
-		errorArray.push(firstLower);
+		const subString = firstLine
+			.trim()
+			.substring(firstLine.indexOf('-') + 1)
+			.trim();
+		errorArray.push(subString);
+		// errorArray.push(firstLower);
 	}
 	if (firstLineArray.includes('successful') || firstLineArray.includes('success')) {
 		responseObject.success = true;
@@ -218,70 +223,6 @@ function getBridgeWebsResult(serverResponse) {
 		responseObject.message = message;
 	}
 	return responseObject;
-}
-
-// function getBridgeWebsResult(serverResponse) {
-// 	const responseArray = serverResponse.split('\n');
-// 	const errorArray = [];
-// 	let responseObject = {
-// 		success: false,
-// 		message: ''
-// 	};
-
-// 	if (typeof serverResponse !== 'string') {
-// 		throw new CustomError('Unknown error in remote server response', 500);
-// 	}
-
-// 	const normalisedResponse = serverResponse.toLowerCase().trim();
-
-// 	if (normalisedResponse.includes('success')) {
-// 		responseObject.success = true;
-// 		responseObject.message = extractMessage(normalisedResponse, 'success');
-// 	} else {
-// 		errorArray.push(...extractErrors(normalisedResponse));
-// 		responseObject.error =
-// 			errorArray.length > 0 ? errorArray : ['ERROR Unknown error'];
-// 	}
-// 	return responseObject;
-// }
-
-function extractMessage(response, keyword) {
-	if (typeof response !== 'string') {
-		throw new CustomError('Unknown error in remote server response', 500);
-	}
-	// const regex = new RegExp(`${keyword}\\s*=\\s*([^\\n]*)`, 'i');
-	// const match = response.match(regex);
-	// console.log('match: ', match);
-
-	// return match ? match[1].trim() : '';
-
-	const keywordLower = keyword.toLowerCase();
-	const lines = response.split('\n');
-	for (const line of lines) {
-		if (line.toLowerCase().startsWith(keywordLower)) {
-			return line.substring(line.indexOf('=') + 1).trim();
-		}
-	}
-	return '';
-}
-
-function extractErrors(response) {
-	if (typeof response !== 'string') {
-		return [''];
-	}
-	const errors = [];
-	const lines = response.split('\n');
-
-	lines.forEach(line => {
-		if (
-			lines.includes('error') ||
-			line.includes('failure') ||
-			line.includes('message')
-		) {
-			errors.push(line.trim());
-		}
-	});
-	return errors;
 }
 
 module.exports = {

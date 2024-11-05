@@ -255,56 +255,175 @@ async function handleEBU(req, res, next) {
 	}
 }
 
+//
+
+// async function handleBridgewebsDownload(req, res, next) {
+// 	try {
+// 		console.log('req: ', req.body);
+// 		const { gameCode } = req.body;
+// 		if (!gameCode) {
+// 			const clientError = buildClientError('No Gamecode provided', 400);
+// 			return res.status(clientError.status).json(clientError.message);
+// 		}
+// 		const payload = { gameCode };
+// 		const serverResponse = await sendToRemote.getBridgeWebs(payload);
+// 		if (serverResponse.split('\n')[0].trim() !== 'failure') {
+// 			const data = serverResponse;
+// 			const filePath = await CsvFileService.saveCsvToFile(data);
+
+// 			res.setHeader('Content-Disposition', 'attachment; filename=response.csv');
+// 			res.setHeader('Content-Type', 'text/csv');
+
+// 			const fileStream = await fs.createReadStream(filePath);
+// 			fileStream.pipe(res);
+
+// 			fileStream.on('close', () => {
+// 				fs.unlink(filePath, err => {
+// 					if (err) {
+// 						throw new Error('Error deleting file');
+// 					} else {
+// 						console.log('Temporary CSV response file deleted successfully');
+// 					}
+// 				});
+// 			});
+// 		}
+// 	} catch (error) {
+// 		next(error);
+// 	}
+// }
+
+/**
+ * @typedef {import('express').Request & {action: string,eventName:string, gameCode: string}} RequestModified
+ * @typedef {import('express').Request} Request
+ */
+
 /**
  *
- * @param {import('express').Request} req
+ * @param {Request} req
  * @param {import('express').Response} res
  * @param {import('express').NextFunction} next
  */
 
-async function handleBridgeWebsUpload(req, res, next) {
-	console.log('Reached handle bridge webs upload');
-
+async function bridgeWebsValidator(req, res, next) {
 	try {
-		let clientError = new CustomError();
-		const { gameCode } = req.query;
-		if (!gameCode) {
-			clientError.message = 'No GameCode in request';
-			clientError.status = 400;
+		let clientError = new CustomError('Client Error: ', 400);
+		const { action } = req.query;
+		if (!action) {
+			clientError.message = 'No action in URL query params.';
 			throw clientError;
 		}
-		const {
-			bwEventName,
-			bwDirectorName,
-			bwScorerName,
-			bwMasterpoints,
-			masterpointsMatchWon,
-			bwAccountName,
-			bwPassword
-		} = req.body;
-		const requiredKeys = [
-			'bwAccountName',
-			'bwPassword',
-			'bwEventName',
-			'bwScorerName',
-			'bwDirectorName',
-			'bwMasterpoints'
-		];
+		if (action !== 'upload' && action !== 'download') {
+			clientError.message = 'Unrecognised action in URL query params.';
+			throw clientError;
+		}
+
 		let missing = [];
-		for (const key of requiredKeys) {
-			if (!Object.hasOwn(req.body, key)) {
-				missing.push(key);
+		if (action === 'upload') {
+			const uploadKeys = [
+				'gameCode',
+				'bwAccountName',
+				'bwPassword',
+				'bwEventName',
+				'bwScorerName',
+				'bwDirectorName',
+				'bwMasterpoints',
+				'eventName'
+			];
+
+			const downloadKeys = ['gameCode', 'eventName'];
+			for (const key of action === 'upload' ? uploadKeys : downloadKeys) {
+				if (!Object.hasOwn(req.body, key)) {
+					missing.push(key);
+				}
+			}
+			if (missing.length) {
+				const missingString = missing.join(', ');
+				clientError.message +=
+					'Bad Request. Request body is missing the following: ' + missingString;
+				throw clientError;
 			}
 		}
-		if (missing.length) {
-			const missingString = missing.join(', ');
-			clientError.message =
-				'Bad Request. Request is missing the following: ' + missingString;
-			clientError.status = 400;
-			throw clientError;
-		}
+		/** @type {RequestModified} */
+		(req).action = action;
+		/** @type {RequestModified} */
+		(req).gameCode = req.body.gameCode;
+		/** @type {RequestModified} */
+		(req).eventName = req.body.eventName;
+		next();
+	} catch (error) {
+		next(error);
+	}
+}
 
-		const payloadString = payload.writeBridgeWebsPayload({ ...req.body, gameCode });
+/**
+//  *
+//  * @param {Request} req
+//  * @param {import('express').Response} res
+//  * @param {import('express').NextFunction} next
+//  */
+async function bridgeWebsRouteHandler(req, res, next) {
+	try {
+		const action = /** @type {RequestModified} req */ (req).action;
+		const eventName = /** @type {RequestModified} */ (req).eventName;
+		const gameCode = /** @type {RequestModified} */ (req).gameCode;
+
+		const data = req.body;
+		const payloadString = payload.writeBridgeWebsPayload(
+			{ data, eventName, gameCode },
+			action
+		);
+		if (!payloadString || payloadString === '') {
+			throw new CustomError('Error writing payload string', 500);
+		}
+		payloadString.trim();
+		console.log('payload string: ', payloadString);
+
+		if (action === 'upload') {
+			// upload
+			const response = await handleBridgeWebsUpload(payloadString, gameCode);
+			const { remoteSuccess } = response;
+			if (remoteSuccess.success === false) {
+				res.status(400).send(response);
+				return;
+			} else {
+				res.status(200).send(response);
+				return;
+			}
+		} else {
+			const response = await handleBridgewebsDownload(payloadString, gameCode);
+			if (!response.success) {
+				res.status(500).send(response);
+				return;
+			} else {
+				const filePath = await CsvFileService.saveCsvToFile(
+					response.serverResponse
+				);
+				res.setHeader('Content-Disposition', 'attachment; filename=response.csv');
+				res.setHeader('Content-Type', 'text/csv');
+
+				const fileStream = fs.createReadStream(filePath);
+				fileStream.pipe(res);
+
+				fileStream.on('close', () => {
+					fs.unlink(filePath, err => {
+						if (err) {
+							throw new CustomError('Internal Server Error', 500, {
+								message: 'Error deleting csv file'
+							});
+						} else {
+							console.log('Temp CSV file deleted successfully');
+						}
+					});
+				});
+			}
+		}
+	} catch (error) {
+		next(error);
+	}
+}
+
+async function handleBridgeWebsUpload(payloadString, gameCode) {
+	try {
 		const serverResponse = await remoteHandler.uploadToBridgeWebsAsync(
 			payloadString
 		);
@@ -313,58 +432,35 @@ async function handleBridgeWebsUpload(req, res, next) {
 			throw new CustomError('Invalid Response from remote server');
 		}
 		const remoteSuccess = remoteResponse.getBridgeWebsResult(serverResponse);
-		if (remoteSuccess.success === false) {
-			res.status(400).send({ remoteSuccess, originalResponse: serverResponse });
-			return;
-		}
-
-		res.status(200).send({ remoteSuccess, originalResponse: serverResponse });
+		return { remoteSuccess, serverResponse };
 	} catch (error) {
-		next(error);
+		throw error;
 	}
 }
 
-async function handleBridgewebsDownload(req, res, next) {
+async function handleBridgewebsDownload(payloadString, gameCode) {
 	try {
-		console.log('req: ', req.body);
-		const { gameCode } = req.body;
-		if (!gameCode) {
-			const clientError = buildClientError('No Gamecode provided', 400);
-			return res.status(clientError.status).json(clientError.message);
-		}
-		const payload = { gameCode };
-		const serverResponse = await sendToRemote.getBridgeWebs(payload);
+		const serverResponse = await remoteHandler.downloadBridgeWebsAsync(
+			payloadString,
+			gameCode
+		);
 		if (serverResponse.split('\n')[0].trim() !== 'failure') {
-			const data = serverResponse;
-			const filePath = await CsvFileService.saveCsvToFile(data);
-
-			res.setHeader('Content-Disposition', 'attachment; filename=response.csv');
-			res.setHeader('Content-Type', 'text/csv');
-
-			const fileStream = await fs.createReadStream(filePath);
-			fileStream.pipe(res);
-
-			fileStream.on('close', () => {
-				fs.unlink(filePath, err => {
-					if (err) {
-						throw new Error('Error deleting file');
-					} else {
-						console.log('Temporary CSV response file deleted successfully');
-					}
-				});
-			});
+			return { success: true, serverResponse };
+		} else {
+			return { success: false };
 		}
 	} catch (error) {
-		next(error);
+		throw error;
 	}
 }
+
 module.exports = {
 	handleHtmlPdf,
 	handleDeleteHand,
 	handleDownload,
 	handleUpload,
 	handleEBU,
-	handleBridgewebsDownload,
-	handleBridgeWebsUpload,
-	buildClientError
+	buildClientError,
+	bridgeWebsValidator,
+	bridgeWebsRouteHandler
 };

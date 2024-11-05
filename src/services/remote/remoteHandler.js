@@ -8,6 +8,7 @@ const { env } = process;
 const writeDB = env.WRITE_DB || '';
 const importDb = env.IMPORT_DB || '';
 const putBW = env.PUT_BW || '';
+const getFile = env.GET_FILE || '';
 
 const axiosInstance = axios.create();
 
@@ -43,16 +44,42 @@ const uploadDatabaseAsync = async payload => {
 		});
 		return response.data;
 	} catch (error) {
-		console.error('error in remote handler: ', error);
-		if (error.response) {
-			throw new CustomError('Error in response');
-		}
-		if (error.request) {
-			throw new CustomError('Error in request');
-		}
-		throw new CustomError('Error setting up request');
+		handleAxiosError(error);
 	}
 };
+
+async function uploadToBridgeWebsAsync(payloadString) {
+	try {
+		const reponse = await axiosInstance.request({
+			method: 'post',
+			url: putBW,
+			data: payloadString,
+			headers: { 'Content-Type': 'text/plain' },
+			timeout: 30000
+		});
+		return reponse.data;
+	} catch (error) {
+		handleAxiosError(error);
+	}
+}
+
+async function downloadBridgeWebsAsync(paylaodString, gameCode) {
+	try {
+		const urlString = `${getFile}?SLOT=${gameCode}&TYPE=BRIDGEWEBS&NOWRAP=TRUE`;
+		const response = await axiosInstance.request({
+			method: 'post',
+			url: urlString,
+			data: paylaodString,
+			headers: { 'Content-Type': 'text/plain' },
+			timeout: 30000
+		});
+		return response.data;
+	} catch (error) {
+		handleAxiosError(error);
+	}
+}
+
+// Axios Error Handling / Logging
 
 function handleAxiosError(error) {
 	console.error('error in remote handler: ', error);
@@ -80,18 +107,8 @@ axiosInstance.interceptors.request.use(
 	}
 );
 
-async function uploadToBridgeWebsAsync(payloadString) {
-	try {
-		const reponse = await axios.request({
-			url: putBW,
-			data: payloadString,
-			headers: { 'Content-Type': 'text/plain' },
-			timeout: 30000
-		});
-		return reponse.data;
-	} catch (error) {
-		handleAxiosError();
-	}
-}
-
-module.exports = { uploadDatabaseAsync, uploadToBridgeWebsAsync };
+module.exports = {
+	uploadDatabaseAsync,
+	uploadToBridgeWebsAsync,
+	downloadBridgeWebsAsync
+};
