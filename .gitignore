@@ -1,3 +1,9 @@
+# Dev Utils & Data
+dev_utils
+dev_utils/*
+dev_data
+dev_data/*
+
 # Credentials
 G_API
 */G_API

@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
-const userData = mongoose.Schema({
+const userData = new mongoose.Schema({
 	addDate: { type: String, required: true },
 	lastPlayed: { type: String, required: false },
 	pp_n: { type: String, required: false }
 });
 
-const userSchema = mongoose.Schema(
+const userSchema = new mongoose.Schema(
 	{
 		full_name: { type: String, required: true },
 		user_name: { type: String, required: true },

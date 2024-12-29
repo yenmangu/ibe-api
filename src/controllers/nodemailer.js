@@ -4,10 +4,10 @@ const path = require('path');
 const fs = require('fs').promises;
 // const { promisify } = require('util');
 
-async function readFileAsync(filePath, encoding) {
+async function readFileAsync(filePath) {
 	try {
-		const content = await fs.readFile(filePath, encoding);
-		return content;
+		const content = await fs.readFile(filePath, 'utf8');
+		return content.toString();
 	} catch (err) {
 		throw err;
 	}
@@ -18,8 +18,8 @@ const smtp = {
 	secure: true, // use TLS
 
 	auth: {
-		user: process.env.SMTP_EMAIL_1,
-		pass: process.env.SMTP_PASS_1
+		user: process.env.SMTP_EMAIL_2,
+		pass: process.env.SMTP_PASS_2
 	}
 };
 
@@ -29,20 +29,19 @@ async function sendDetails(contact) {
 			console.log('no contact for nodeMail');
 		}
 
-		const transport = nodemail.createTransport(smtp);
+		const transport = nodemailer.createTransport(smtp);
 		const template = await readFileAsync(
-			path.join(__dirname, '..', 'email', 'templates', 'updated_email.html'),
-			'utf8'
+			path.join(__dirname, '..', 'email', 'templates', 'updated_email.html')
 		);
 		let mailOptions = {
 			from: smtp.auth.user,
 			to: contact.email,
-			bcc: proceess.env.IBE_ADMIN,
+			bcc: process.env.IBE_ADMIN,
 			subject: `Email Updated for game code ${contact.gameCode}`,
 			html: template
-				.replace('[name]', contact.name)
-				.replace('[slot]', cotact.gameCode)
-				.replace('[email]', contact.email)
+				.replace('{{name}}', contact.name)
+				.replace('{{slot}}', contact.gameCode)
+				.replace('{{email}}', contact.email)
 		};
 		const info = await transport.sendMail(mailOptions);
 		return { messageId: info.messageId };
@@ -53,12 +52,17 @@ async function sendDetails(contact) {
 }
 
 async function sendNodeMail(contact) {
-	console.log(contact);
+	console.log('Contact to send to: ', contact);
 	const transport = nodemailer.createTransport(smtp);
+	if (!transport) {
+		console.log('No Transport created');
+	}
 	const template = await readFileAsync(
-		path.join(__dirname, '..', 'email', 'templates', 'welcome_email.html'),
-		'utf8'
+		path.join(__dirname, '..', 'email', 'templates', 'welcome_email.html')
 	);
+	if (!template) {
+		console.log('No Template found');
+	}
 	try {
 		console.log('email contact', contact);
 		let mailOptions = {
@@ -90,8 +94,7 @@ async function sendNewPass(contact) {
 		// );
 
 		const password_email = await readFileAsync(
-			path.join(__dirname, '..', 'email', 'templates', 'test_template.html'),
-			'utf8'
+			path.join(__dirname, '..', 'email', 'templates', 'test_template.html')
 		);
 		if (password_email) {
 			console.log('welcomeEmail Found: ');

@@ -8,8 +8,8 @@ const bcrypt = require('bcryptjs');
 const path = require('path');
 const checkAuth = require('../middleware/check-auth');
 const jwt = require('jsonwebtoken');
-const generateSlot = require('../controllers/slotCreation');
-const errorResponse = require('../controllers/errorResponse');
+const generateSlot = require('../controllers/slot_creation');
+const errorResponse = require('../controllers/error_response');
 dotenv.config();
 
 const router = express.Router();
@@ -57,7 +57,7 @@ router.post('/test-password', async (req, res) => {
 
 router.post('/login', (req, res, next) => {
 	const { type, username, password } = req.body;
-	console.log (req.body);
+	console.log(req.body);
 	// return
 	let searchQuery = {};
 
@@ -69,9 +69,9 @@ router.post('/login', (req, res, next) => {
 
 	if (type === 'slot') {
 		searchQuery = { slot: username };
-		console.log('slot: ', username)
+		console.log('slot: ', username);
 	} else if (type === 'user_name') {
-		console.log('user_name: ', username)
+		console.log('user_name: ', username);
 		searchQuery = { user_name: username };
 	}
 	console.log('loginType:', type);
@@ -79,7 +79,7 @@ router.post('/login', (req, res, next) => {
 	console.log('searchQuery is: ', searchQuery);
 	// return;
 	director.findOne(searchQuery).then(result => {
-		console.log(password,result.password)
+		console.log(password, result.password);
 		// return
 		if (!result) {
 			res.status(200).json({ status: 'ERRORNOUSER' });
