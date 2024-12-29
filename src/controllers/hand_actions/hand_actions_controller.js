@@ -223,7 +223,7 @@ async function handleEBU(req, res, next) {
 
 		const serverResponse = await sendToRemote.getEBU(queryString, formDataString);
 
-		console.log('server response: ', serverResponse);
+		// console.log('server response: ', serverResponse);
 
 		if (serverResponse.split('\n')[0].trim() !== 'failure') {
 			const xmlData = serverResponse;

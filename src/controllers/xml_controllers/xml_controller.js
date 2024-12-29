@@ -205,7 +205,7 @@ async function importEntirePlayerDb(data) {
 		if (remoteResult.sfAttribute === 's') {
 			response.success = true;
 		} else if (remoteResult.sfAttribute === 'f') {
-			console.log('Server response: ', xmlResponse);
+			// console.log('Server response: ', xmlResponse);
 			console.log('Server result: ', remoteResult);
 
 			response.error = remoteResult.errAttribute;

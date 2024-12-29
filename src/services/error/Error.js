@@ -11,8 +11,14 @@ class CustomError extends Error {
 	 * @param {string} message
 	 * @param {number} status
 	 * @param {any} customData
+	 * @param {Date} time
 	 */
-	constructor(message = 'An error occurred', status = 500, customData = null) {
+	constructor(
+		message = 'An error occurred',
+		status = 500,
+		customData = null,
+		time = new Date()
+	) {
 		super(message); // call parent class parameter
 		/** @type {string} */
 		this.name = this.constructor.name;
@@ -20,11 +26,13 @@ class CustomError extends Error {
 		this.status = status ? status : 500;
 		this.customData = customData || null;
 		Error.captureStackTrace(this, this.constructor);
+		this.time = time || new Date();
 	}
 
 	/**
 	 * @typedef {Object} ErrorDetails
 	 * @property {string} name
+	 * @property {string} time
 	 * @property {number} status
 	 * @property {string} message
 	 * @property {string} stack
@@ -36,7 +44,9 @@ class CustomError extends Error {
 	 */
 	get errorDetails() {
 		return {
+			// time: this.time,
 			name: this.name,
+			time: this.time.toString(),
 			status: this.status,
 			message: this.message,
 			stack: this.stack ? `${this.stack.replace(/\n/g, '</br>')}` : '',
