@@ -1,6 +1,6 @@
-/**
- * @type {import('axios')}
- */
+// /**
+//  * @type {import('axios')}
+//  */
 const axios = require('axios');
 const dotenv = require('dotenv');
 const path = require('path');
@@ -22,9 +22,11 @@ async function getCurrentData(authData) {
 		if (!authData) {
 			throw new Error('No auth data');
 		}
-
+		let noTimeout = false;
 		let data = `${authData.game_code}\nDIRPASS\n${authData.dir_key}`;
-
+		if (authData.game_code === 'Exeter1') {
+			noTimeout = true;
+		}
 		// /**
 		//  * @type {import('axios').AxiosRequestConfig}
 		//  */
@@ -35,7 +37,7 @@ async function getCurrentData(authData) {
 			headers: {
 				'Content-Type': 'application/xml'
 			},
-			timeout: 10000,
+			timeout: noTimeout ? 100000 : 1000,
 			// signal: controller.signal,
 			data: data
 		};
