@@ -24,6 +24,10 @@ async function getCurrentData(authData) {
 		}
 		let noTimeout = false;
 		let data = `${authData.game_code}\nDIRPASS\n${authData.dir_key}`;
+		console.log('Authdata: ', authData);
+
+		console.log('Data sending to remote: ', data);
+
 		if (authData.game_code === 'Exeter1') {
 			noTimeout = true;
 		}
@@ -37,7 +41,7 @@ async function getCurrentData(authData) {
 			headers: {
 				'Content-Type': 'application/xml'
 			},
-			timeout: noTimeout ? 100000 : 1000,
+			timeout: noTimeout ? 100000 : 10000,
 			// signal: controller.signal,
 			data: data
 		};
